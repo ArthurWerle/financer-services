@@ -8,5 +8,9 @@ services:
     ports:
       - "8080:8080"
     container_name: category-service
-    env_file:
-      - ./category-service/stack.env
+    environment:
+      - DB_HOST=$DB_HOST
+      - DB_PORT=$DB_PORT
+      - DB_USER=$DB_USER
+      - DB_PASSWORD=$DB_PASSWORD
+      - DB_NAME=$DB_NAME
