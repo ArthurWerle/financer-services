@@ -1,6 +1,6 @@
 module category-service
 
-go 1.18
+go 1.23.4
 
 require gorm.io/gorm v1.25.12
 
