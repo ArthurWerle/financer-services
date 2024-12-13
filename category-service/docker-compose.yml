@@ -15,4 +15,5 @@ services:
       - DB_PASSWORD=$DB_PASSWORD
       - DB_NAME=$DB_NAME
 networks:
-  financer-services-network: 
+  category-service_default:
+  postgres_default:
