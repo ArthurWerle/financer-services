@@ -26,6 +26,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    pull_policy: build
     build:
       context: ./category-service/
       dockerfile: ./${DOCKERFILE:-Dockerfile}
