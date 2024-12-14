@@ -22,16 +22,16 @@ func AppRouter(db *gorm.DB) *mux.Router {
 	router.HandleFunc("/api/category", handler.ListCategoriesHandler).Methods("GET")
 	router.HandleFunc("/api/category", handler.CreateCategoryHandler).Methods("POST")
 
-	router.HandleFunc("/api/category/{id} ", handler.GetCategoryByIdHandler).Methods("GET")
-	router.HandleFunc("/api/category/{id} ", handler.DeleteCategoryByIdHandler).Methods("DELETE")
-	router.HandleFunc("/api/category/{id} ", handler.UpdateCategoryByIdHandler).Methods("PUT")
+	router.HandleFunc("/api/category/{id}", handler.GetCategoryByIdHandler).Methods("GET")
+	router.HandleFunc("/api/category/{id}", handler.DeleteCategoryByIdHandler).Methods("DELETE")
+	router.HandleFunc("/api/category/{id}", handler.UpdateCategoryByIdHandler).Methods("PUT")
 
 	router.HandleFunc("/api/type", handler.ListTypesHandler).Methods("GET")
 	router.HandleFunc("/api/type", handler.CreateTypeHandler).Methods("POST")
 
-	router.HandleFunc("/api/type/{id} ", handler.GetTypeByIdHandler).Methods("GET")
-	router.HandleFunc("/api/type/{id} ", handler.DeleteTypeByIdHandler).Methods("DELETE")
-	router.HandleFunc("/api/type/{id} ", handler.UpdateTypeByIdHandler).Methods("PUT")
+	router.HandleFunc("/api/type/{id}", handler.GetTypeByIdHandler).Methods("GET")
+	router.HandleFunc("/api/type/{id}", handler.DeleteTypeByIdHandler).Methods("DELETE")
+	router.HandleFunc("/api/type/{id}", handler.UpdateTypeByIdHandler).Methods("PUT")
 
 	return router
 }
