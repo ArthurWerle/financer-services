@@ -14,7 +14,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U admin -d mordor_dev"]
+      test: ["CMD-SHELL", "pg_isready -U admin -d mordor"]
       interval: 5s
       timeout: 5s
       retries: 5

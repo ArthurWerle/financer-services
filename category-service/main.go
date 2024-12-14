@@ -14,7 +14,7 @@ func main() {
 		log.Fatalf("Database connection failed: %v", err)
 	}
 
-	router := routes.NewRouter(db)
+	router := routes.AppRouter(db)
 
 	fmt.Println("Server is running on http://localhost:8080")
 	if err := http.ListenAndServe(":8080", router); err != nil {
