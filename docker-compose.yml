@@ -1,0 +1,42 @@
+version: "3.8"
+
+services:
+  postgres:
+    networks:
+      - database
+      - back-end
+    image: postgres:15
+    env_file:
+      - stack.env
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d mordor_dev"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  category-service:
+    networks:
+      - database
+      - back-end
+    depends_on:
+      postgres:
+        condition: service_healthy
+    build:
+      context: ./category-service/
+      dockerfile: ./${DOCKERFILE:-Dockerfile}
+    ports:
+      - "8080:8080"
+    env_file:
+      - stack.env
+
+volumes:
+  postgres_data:
+
+networks:
+  database:
+  back-end:
