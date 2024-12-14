@@ -35,6 +35,22 @@ services:
     env_file:
       - stack.env
 
+  transaction-service:
+    networks:
+      - database
+      - back-end
+    depends_on:
+      postgres:
+        condition: service_healthy
+    pull_policy: build
+    build:
+      context: ./transaction-service/
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8080"
+    env_file:
+      - stack.env 
+
 volumes:
   postgres_data:
 
