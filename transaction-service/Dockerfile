@@ -2,12 +2,15 @@ FROM eclipse-temurin:17-jdk-alpine
 
 WORKDIR /app
 
-COPY gradlew ./
+COPY gradlew ./gradlew
 COPY gradle ./gradle
 COPY build.gradle.kts settings.gradle.kts ./
 COPY src ./src
 
 RUN ./gradlew build --no-daemon
+
+# Just for debug
+RUN ls -al build/libs
 
 RUN cp build/libs/*.jar app.jar
 

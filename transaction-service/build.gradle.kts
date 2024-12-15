@@ -8,6 +8,14 @@ plugins {
 group = "org.financer"
 version = "0.0.1-SNAPSHOT"
 
+tasks.getByName<Jar>("jar") {
+  enabled = false 
+}
+tasks.getByName<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
+  archiveFileName.set("transaction-service.jar")
+}
+
+
 java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(17)
@@ -24,10 +32,14 @@ dependencies {
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	runtimeOnly("org.postgresql:postgresql")
-	testImplementation("org.springframework.boot:spring-boot-starter-test")
+  runtimeOnly("com.h2database:h2")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+  testImplementation("org.springframework.boot:spring-boot-starter-test") {
+    exclude(group = "org.junit.vintage")
+}
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
+
 
 kotlin {
 	compilerOptions {
