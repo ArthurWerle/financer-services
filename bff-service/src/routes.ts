@@ -3,10 +3,14 @@ import axios from "axios"
 
 const router = Router()
 
-router.get("/api/bff/test", async (req, res) => {
+router.get("/test", async (req, res) => {
   try {
-    const response1 = await axios.get("https://localhost:8080/api/category")
-    const response2 = await axios.get("https://localhost:8081/api/transactions")
+    const response1 = await axios.get(
+      "http://category-service:8080/api/category"
+    )
+    const response2 = await axios.get(
+      "http://transaction-service:8080/api/transactions"
+    )
 
     res.json({
       categoryService: {
@@ -19,7 +23,7 @@ router.get("/api/bff/test", async (req, res) => {
       },
     })
   } catch (error) {
-    res.status(500).json({ error: "Failed to fetch data" })
+    res.status(500).json({ error: "Failed to fetch data", cause: error })
   }
 })
 
