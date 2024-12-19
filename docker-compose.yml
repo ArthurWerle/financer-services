@@ -9,7 +9,6 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
     healthcheck:
@@ -33,6 +32,11 @@ services:
       - "8080:8080"
     env_file:
       - stack.env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/healthcheck"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
 
   transaction-service:
     networks:
@@ -40,6 +44,8 @@ services:
       - back-end
     depends_on:
       postgres:
+        condition: service_healthy
+      category-service:
         condition: service_healthy
     pull_policy: build
     build:

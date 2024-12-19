@@ -19,6 +19,8 @@ func AppRouter(db *gorm.DB) *mux.Router {
 	router := mux.NewRouter()
 	handler := &Router{DB: db}
 
+	router.HandleFunc("/api/healthcheck", handler.Healthcheck).Methods("GET")
+
 	router.HandleFunc("/api/category", handler.ListCategoriesHandler).Methods("GET")
 	router.HandleFunc("/api/category", handler.CreateCategoryHandler).Methods("POST")
 
@@ -34,6 +36,15 @@ func AppRouter(db *gorm.DB) *mux.Router {
 	router.HandleFunc("/api/type/{id}", handler.UpdateTypeByIdHandler).Methods("PUT")
 
 	return router
+}
+
+func (r *Router) Healthcheck(w http.ResponseWriter, req *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(map[string]string{"status": "ok"}); err != nil {
+		http.Error(w, "Failed to encode response as JSON", http.StatusInternalServerError)
+		log.Printf("JSON encoding error: %v", err)
+	}
 }
 
 func (r *Router) ListCategoriesHandler(w http.ResponseWriter, req *http.Request) {
