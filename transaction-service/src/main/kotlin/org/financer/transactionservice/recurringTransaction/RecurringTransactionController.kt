@@ -13,7 +13,7 @@ import java.net.URI
 @RequestMapping("/api/recurring-transactions")
 class RecurringTransactionController(private val service: RecurringTransactionService) {
     @GetMapping
-    fun listMessages() = ResponseEntity.ok(service.findMessages())
+    fun listRecurringTransactions() = ResponseEntity.ok(service.findMessages())
 
     @PostMapping
     fun post(@RequestBody recurringTransaction: RecurringTransaction): ResponseEntity<RecurringTransaction> {
@@ -22,7 +22,7 @@ class RecurringTransactionController(private val service: RecurringTransactionSe
     }
 
     @GetMapping("/{id}")
-    fun getMessage(@PathVariable id: String): ResponseEntity<RecurringTransaction> =
+    fun getRecurringTransaction(@PathVariable id: String): ResponseEntity<RecurringTransaction> =
         service.findRecurringTransactionById(id).toResponseEntity()
 
     private fun RecurringTransaction?.toResponseEntity(): ResponseEntity<RecurringTransaction> =

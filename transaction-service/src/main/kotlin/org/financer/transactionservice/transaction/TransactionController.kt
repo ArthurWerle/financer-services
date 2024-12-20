@@ -1,19 +1,17 @@
 package org.financer.transactionservice.transaction
 
+import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import java.net.URI
+import java.time.LocalDate
+import java.time.YearMonth
 
 @RestController
 @RequestMapping("/api/transactions")
 class TransactionController(private val service: TransactionService) {
     @GetMapping
-    fun listMessages() = ResponseEntity.ok(service.findMessages())
+    fun listTransactions() = ResponseEntity.ok(service.findTransactions())
 
     @PostMapping
     fun post(@RequestBody transaction: Transaction): ResponseEntity<Transaction> {
@@ -22,8 +20,32 @@ class TransactionController(private val service: TransactionService) {
     }
 
     @GetMapping("/{id}")
-    fun getMessage(@PathVariable id: String): ResponseEntity<Transaction> =
+    fun getTransaction(@PathVariable id: String): ResponseEntity<Transaction> =
         service.findTransactionById(id).toResponseEntity()
+
+    @GetMapping("/by-month/{yearMonth}")
+    fun getTransactionsByMonth(
+        @PathVariable @DateTimeFormat(pattern = "yyyy-MM") yearMonth: YearMonth
+    ): ResponseEntity<List<Transaction>> {
+        val transactions = service.findTransactionsByMonth(yearMonth)
+        return ResponseEntity.ok(transactions)
+    }
+
+    @GetMapping("/by-week")
+    fun getTransactionsByWeek(
+        @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") startDate: LocalDate
+    ): ResponseEntity<List<Transaction>> {
+        val transactions = service.findTransactionsByWeek(startDate)
+        return ResponseEntity.ok(transactions)
+    }
+
+    @GetMapping("/by-day/{date}")
+    fun getTransactionsByDay(
+        @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") date: LocalDate
+    ): ResponseEntity<List<Transaction>> {
+        val transactions = service.findTransactionsByDay(date)
+        return ResponseEntity.ok(transactions)
+    }
 
     private fun Transaction?.toResponseEntity(): ResponseEntity<Transaction> =
         this?.let { ResponseEntity.ok(it) } ?: ResponseEntity.notFound().build()
