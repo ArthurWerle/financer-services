@@ -7,11 +7,9 @@ COPY gradle ./gradle
 COPY build.gradle.kts settings.gradle.kts ./
 COPY src ./src
 
-RUN ./gradlew build --no-daemon
+RUN ./gradlew build -x test --no-daemon
 
-# Just for debug
-RUN ls -al build/libs
-
+RUN apk add --no-cache curl
 RUN cp build/libs/*.jar app.jar
 
 EXPOSE 8081
