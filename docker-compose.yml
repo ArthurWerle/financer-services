@@ -64,7 +64,6 @@ services:
 
   bff-service:
     networks:
-      - database
       - back-end
     depends_on:
       postgres:
