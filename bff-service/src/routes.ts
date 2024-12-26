@@ -1,29 +1,24 @@
 import { Router } from "express"
-import axios from "axios"
+import { TransactionService } from "./services/TransactionService"
+import { Transaction } from "./types/transaction"
+import { RecurringTransaction } from "./types/recurring-transaction"
 
 const router = Router()
 
-router.get("/test", async (req, res) => {
-  try {
-    const response1 = await axios.get(
-      "http://category-service:8080/api/category"
-    )
-    const response2 = await axios.get(
-      "http://transaction-service:8080/api/transactions"
-    )
+router.get("/current-month", async (req, res) => {
+  try { 
+    const service = new TransactionService()
+    const currentMonth = new Date().toISOString().slice(0, 7)
+    const transactions = await service.get<Transaction[]>(`/transactions/by-month/${currentMonth}`)
+    const recurrentTransactions = await service.get<RecurringTransaction[]>(`/recurring-transactions/by-month/${currentMonth}`)
+
+    const allTransactions = [...transactions.data, ...recurrentTransactions.data]
 
     res.json({
-      categoryService: {
-        status: response1.status,
-        data: response1.data,
-      },
-      transactionsService: {
-        status: response2.status,
-        data: response2.data,
-      },
+      transactions: allTransactions
     })
   } catch (error) {
-    res.status(500).json({ error: "Failed to fetch data", cause: error })
+    res.status(500).json({ error: "Failed to fetch data /current-month", cause: error })
   }
 })
 

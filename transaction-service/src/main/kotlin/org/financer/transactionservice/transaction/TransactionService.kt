@@ -14,35 +14,23 @@ class TransactionService(private val db: TransactionRepository) {
 
     fun findTransactionById(id: String): Transaction? = db.findByIdOrNull(id)
 
-    fun save(message: Transaction): Transaction = db.save(message)
+    fun save(transaction: Transaction): Transaction = db.save(transaction)
 
     fun findTransactionsByMonth(yearMonth: YearMonth): List<Transaction> {
         val startDateTime = yearMonth.atDay(1).atStartOfDay()
         val endDateTime = yearMonth.atEndOfMonth().atTime(LocalTime.MAX)
-        return findTransactions().filter { transaction ->
-            transaction.date?.let { date ->
-                date in startDateTime..endDateTime
-            } ?: false
-        }
+        return db.findByDateBetween(startDateTime, endDateTime)
     }
 
     fun findTransactionsByWeek(startDate: LocalDate): List<Transaction> {
         val startDateTime = startDate.atStartOfDay()
         val endDateTime = startDate.plusDays(6).atTime(LocalTime.MAX)
-        return findTransactions().filter { transaction ->
-            transaction.date?.let { date ->
-                date in startDateTime..endDateTime
-            } ?: false
-        }
+        return db.findByDateBetween(startDateTime, endDateTime)
     }
 
     fun findTransactionsByDay(date: LocalDate): List<Transaction> {
         val startDateTime = date.atStartOfDay()
         val endDateTime = date.atTime(LocalTime.MAX)
-        return findTransactions().filter { transaction ->
-            transaction.date?.let { d ->
-                d in startDateTime..endDateTime
-            } ?: false
-        }
+        return db.findByDateBetween(startDateTime, endDateTime)
     }
 }

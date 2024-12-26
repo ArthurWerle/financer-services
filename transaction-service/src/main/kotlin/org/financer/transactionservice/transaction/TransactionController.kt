@@ -31,7 +31,7 @@ class TransactionController(private val service: TransactionService) {
         return ResponseEntity.ok(transactions)
     }
 
-    @GetMapping("/by-week")
+    @GetMapping("/by-week/{startDate}")
     fun getTransactionsByWeek(
         @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") startDate: LocalDate
     ): ResponseEntity<List<Transaction>> {

@@ -50,7 +50,6 @@ func (r *Router) Healthcheck(w http.ResponseWriter, req *http.Request) {
 func (r *Router) ListCategoriesHandler(w http.ResponseWriter, req *http.Request) {
 	var categories []models.Category
 
-	// Use GORM to find all categories
 	result := r.DB.Find(&categories)
 	if result.Error != nil {
 		http.Error(w, "Failed to query categories", http.StatusInternalServerError)
@@ -58,7 +57,6 @@ func (r *Router) ListCategoriesHandler(w http.ResponseWriter, req *http.Request)
 		return
 	}
 
-	// Set response headers and encode JSON
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(categories); err != nil {
 		http.Error(w, "Failed to encode response as JSON", http.StatusInternalServerError)
@@ -131,6 +129,8 @@ func (r *Router) DeleteCategoryByIdHandler(w http.ResponseWriter, req *http.Requ
 		http.Error(w, "Failed to encode response as JSON", http.StatusInternalServerError)
 		log.Printf("JSON encoding error: %v", err)
 	}
+
+	w.WriteHeader(http.StatusOK)
 }
 
 func (r *Router) UpdateCategoryByIdHandler(w http.ResponseWriter, req *http.Request) {
@@ -163,10 +163,11 @@ func (r *Router) UpdateCategoryByIdHandler(w http.ResponseWriter, req *http.Requ
 		http.Error(w, "Failed to encode response as JSON", http.StatusInternalServerError)
 		log.Printf("JSON encoding error: %v", err)
 	}
+
 }
 
 func (r *Router) ListTypesHandler(w http.ResponseWriter, req *http.Request) {
-	var types models.Type
+	var types []models.Type
 
 	result := r.DB.Find(&types)
 	if result.Error != nil {
@@ -206,6 +207,8 @@ func (r *Router) CreateTypeHandler(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, "Failed to encode response as JSON", http.StatusInternalServerError)
 		log.Printf("JSON encoding error: %v", err)
 	}
+
+	w.WriteHeader(http.StatusOK)
 }
 
 func (r *Router) GetTypeByIdHandler(w http.ResponseWriter, req *http.Request) {
@@ -226,6 +229,7 @@ func (r *Router) GetTypeByIdHandler(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, "Failed to encode response as JSON", http.StatusInternalServerError)
 		log.Printf("JSON encoding error: %v", err)
 	}
+
 }
 
 func (r *Router) DeleteTypeByIdHandler(w http.ResponseWriter, req *http.Request) {
@@ -246,6 +250,8 @@ func (r *Router) DeleteTypeByIdHandler(w http.ResponseWriter, req *http.Request)
 		http.Error(w, "Failed to encode response as JSON", http.StatusInternalServerError)
 		log.Printf("JSON encoding error: %v", err)
 	}
+
+	w.WriteHeader(http.StatusOK)
 }
 
 func (r *Router) UpdateTypeByIdHandler(w http.ResponseWriter, req *http.Request) {
@@ -278,4 +284,6 @@ func (r *Router) UpdateTypeByIdHandler(w http.ResponseWriter, req *http.Request)
 		http.Error(w, "Failed to encode response as JSON", http.StatusInternalServerError)
 		log.Printf("JSON encoding error: %v", err)
 	}
+
+	w.WriteHeader(http.StatusOK)
 }
