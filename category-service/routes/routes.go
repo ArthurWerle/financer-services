@@ -8,6 +8,7 @@ import (
 	"category-service/models"
 
 	"github.com/gorilla/mux"
+	"github.com/gorilla/handlers"
 	"gorm.io/gorm"
 )
 
@@ -35,7 +36,13 @@ func AppRouter(db *gorm.DB) *mux.Router {
 	router.HandleFunc("/api/type/{id}", handler.DeleteTypeByIdHandler).Methods("DELETE")
 	router.HandleFunc("/api/type/{id}", handler.UpdateTypeByIdHandler).Methods("PUT")
 
-	return router
+	corsMiddleware := handlers.CORS(
+        handlers.AllowedOrigins([]string{"http://localhost:3000"}),
+        handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}),
+        handlers.AllowedHeaders([]string{"Content-Type", "Authorization"}),
+    )
+
+	return corsMiddleware(router)
 }
 
 func (r *Router) Healthcheck(w http.ResponseWriter, req *http.Request) {
