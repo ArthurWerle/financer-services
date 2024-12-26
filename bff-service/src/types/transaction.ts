@@ -3,6 +3,7 @@ export interface Transaction {
   categoryId: number
   amount: number
   typeId: number
+  typeName: 'income' | 'expense'
   date: string | null
   description: string
   createdAt: string

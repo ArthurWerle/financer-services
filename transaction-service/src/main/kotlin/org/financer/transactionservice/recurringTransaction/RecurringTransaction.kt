@@ -13,6 +13,7 @@ data class RecurringTransaction(
     val categoryId: Long?,
     val amount: BigDecimal,
     val typeId: Long,
+    val typeName: String,
     val description: String?,
     val frequency: String,
     val startDate: LocalDate,

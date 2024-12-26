@@ -16,7 +16,7 @@ type Router struct {
 	DB *gorm.DB
 }
 
-func AppRouter(db *gorm.DB) *mux.Router {
+func AppRouter(db *gorm.DB) http.Handler {
 	router := mux.NewRouter()
 	handler := &Router{DB: db}
 

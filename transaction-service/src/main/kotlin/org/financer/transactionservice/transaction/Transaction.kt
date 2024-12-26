@@ -12,6 +12,7 @@ data class Transaction(
     val categoryId: Long?,
     val amount: BigDecimal,
     val typeId: Long,
+    val typeName: String,
     val date: LocalDateTime?,
     val description: String?,
     val createdAt: LocalDateTime = LocalDateTime.now(),
