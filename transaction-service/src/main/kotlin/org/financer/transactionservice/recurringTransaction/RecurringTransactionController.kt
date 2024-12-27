@@ -27,15 +27,15 @@ class RecurringTransactionController(private val service: RecurringTransactionSe
     @GetMapping("/by-month/{yearMonth}")
     fun getTransactionsByMonth(
         @PathVariable @DateTimeFormat(pattern = "yyyy-MM") yearMonth: YearMonth
-    ): ResponseEntity<List<RecurringTransaction>> {
+    ): ResponseEntity<List<RecurringTransactionDto>> {
         val recurringTransactions = service.findRecurringTransactionsByMonth(yearMonth)
         return ResponseEntity.ok(recurringTransactions)
     }
 
     @GetMapping("/by-week/{startDate}")
     fun getTransactionsByWeek(
-        @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") startDate: LocalDate
-    ): ResponseEntity<List<RecurringTransaction>> {
+        @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") startDate: LocalDate
+    ): ResponseEntity<List<RecurringTransactionDto>> {
         val recurringTransactions = service.findRecurringTransactionsByWeek(startDate)
         return ResponseEntity.ok(recurringTransactions)
     }
@@ -43,7 +43,7 @@ class RecurringTransactionController(private val service: RecurringTransactionSe
     @GetMapping("/by-day/{date}")
     fun getTransactionsByDay(
         @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") date: LocalDate
-    ): ResponseEntity<List<RecurringTransaction>> {
+    ): ResponseEntity<List<RecurringTransactionDto>> {
         val recurringTransactions = service.findRecurringTransactionsByDay(date)
         return ResponseEntity.ok(recurringTransactions)
     }

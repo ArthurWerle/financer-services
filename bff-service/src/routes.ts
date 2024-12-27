@@ -36,49 +36,51 @@ router.get("/overview/by-month", async (req, res) => {
       },
     })
   } catch (error) {
+    console.error(error)
     res.status(500).json({ error: "Failed to fetch data /current-month", cause: error })
   }
 })
 
-router.get("/current-month", async (req, res) => {
+router.get("/overview/by-week", async (req, res) => {
   try { 
     const service = new TransactionService()
-    const currentMonth = new Date().toISOString().slice(0, 7)
-    const transactions = await service.get<Transaction[]>(`/transactions/by-month/${currentMonth}`)
-    const recurrentTransactions = await service.get<RecurringTransaction[]>(`/recurring-transactions/by-month/${currentMonth}`)
 
-    const allTransactions = [...transactions.data, ...recurrentTransactions.data]
-    const totalExpenseValue = allTransactions.filter(transaction => transaction.typeName === "expense").reduce((acc, transaction) => acc + transaction.amount, 0)
-    const totalIncomeValue = allTransactions.filter(transaction => transaction.typeName === "income").reduce((acc, transaction) => acc + transaction.amount, 0)
+    const currentWeek = new Date(new Date().setDate(new Date().getDate() - new Date().getDay())).toISOString().slice(0, 10)
+    const { totalExpenseValue, totalIncomeValue } = await service.getTotalValuesByPeriod({ period: 'by-week', date: currentWeek })
+
+    const lastWeek = new Date(new Date().setDate(new Date().getDate() - 7)).toISOString().slice(0, 10)
+    const { 
+      totalExpenseValue: lastWeekTotalExpenseValue, 
+      totalIncomeValue: lastWeekTotalIncomeValue 
+    } = await service.getTotalValuesByPeriod({ period: 'by-week', date: lastWeek })
 
     res.json({
-      transactions: allTransactions,
-      totalExpenseValue,
-      totalIncomeValue
+      income: {
+        currentWeek: totalIncomeValue,
+        lastWeek: lastWeekTotalIncomeValue,
+        percentageVariation: ((totalIncomeValue - lastWeekTotalIncomeValue) / lastWeekTotalIncomeValue) * 100
+      },
+      expense: {
+        currentWeek: totalExpenseValue,
+        lastWeek: lastWeekTotalExpenseValue,
+        percentageVariation: ((totalExpenseValue - lastWeekTotalExpenseValue) / lastWeekTotalExpenseValue) * 100
+      },
     })
   } catch (error) {
-    res.status(500).json({ error: "Failed to fetch data /current-month", cause: error })
+    console.error(error)
+    res.status(500).json({ error: "Failed to fetch data /overview/by-week", cause: error })
   }
 })
 
-router.get("/last-month", async (req, res) => {
+router.get("/expense-comparsion-history", async (req, res) => {
   try {
     const service = new TransactionService()
-    const lastMonth = new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString().slice(0, 7)
-    const transactions = await service.get<Transaction[]>(`/transactions/by-month/${lastMonth}`)
-    const recurrentTransactions = await service.get<RecurringTransaction[]>(`/recurring-transactions/by-month/${lastMonth}`)
-
-    const allTransactions = [...transactions.data, ...recurrentTransactions.data]
-    const totalExpenseValue = allTransactions.filter(transaction => transaction.typeName === "expense").reduce((acc, transaction) => acc + transaction.amount, 0)
-    const totalIncomeValue = allTransactions.filter(transaction => transaction.typeName === "income").reduce((acc, transaction) => acc + transaction.amount, 0)
-
-    res.json({
-      transactions: allTransactions,
-      totalExpenseValue,
-      totalIncomeValue
-    })
+    const monthlyData = await service.getPriceComparisonHistory()
+    
+    res.json(monthlyData)
   } catch (error) {
-    res.status(500).json({ error: "Failed to fetch data /last-month", cause: error })
+    console.error(error)
+    res.status(500).json({ error: "Failed to fetch data /income-comparsion-chart", cause: error })
   }
 })
 

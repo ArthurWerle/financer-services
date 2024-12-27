@@ -26,15 +26,15 @@ class TransactionController(private val service: TransactionService) {
     @GetMapping("/by-month/{yearMonth}")
     fun getTransactionsByMonth(
         @PathVariable @DateTimeFormat(pattern = "yyyy-MM") yearMonth: YearMonth
-    ): ResponseEntity<List<Transaction>> {
+    ): ResponseEntity<List<TransactionDTO>> {
         val transactions = service.findTransactionsByMonth(yearMonth)
         return ResponseEntity.ok(transactions)
     }
 
     @GetMapping("/by-week/{startDate}")
     fun getTransactionsByWeek(
-        @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") startDate: LocalDate
-    ): ResponseEntity<List<Transaction>> {
+        @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") startDate: LocalDate
+    ): ResponseEntity<List<TransactionDTO>> {
         val transactions = service.findTransactionsByWeek(startDate)
         return ResponseEntity.ok(transactions)
     }
@@ -42,7 +42,7 @@ class TransactionController(private val service: TransactionService) {
     @GetMapping("/by-day/{date}")
     fun getTransactionsByDay(
         @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") date: LocalDate
-    ): ResponseEntity<List<Transaction>> {
+    ): ResponseEntity<List<TransactionDTO>> {
         val transactions = service.findTransactionsByDay(date)
         return ResponseEntity.ok(transactions)
     }

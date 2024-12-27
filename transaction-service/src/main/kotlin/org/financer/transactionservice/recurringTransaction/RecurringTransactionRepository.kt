@@ -11,7 +11,7 @@ interface RecurringTransactionRepository : CrudRepository<RecurringTransaction, 
          FROM recurring_transactions t, types ty
          WHERE t.type_id = ty.id
     """)
-    override fun findAll(): List<RecurringTransaction>
+    fun findAllWithType(): List<RecurringTransactionDto>
 
     @Query("""
        SELECT t.*, ty.name as type_name
@@ -20,7 +20,7 @@ interface RecurringTransactionRepository : CrudRepository<RecurringTransaction, 
           AND start_date <= :date 
         AND (end_date IS NULL OR end_date >= :date)
     """)
-    fun findActiveTransactionsAtDate(date: LocalDate): List<RecurringTransaction>
+    fun findActiveTransactionsAtDateWithType(date: LocalDate): List<RecurringTransactionDto>
 
     @Query("""
        SELECT t.*, ty.name as type_name
@@ -29,5 +29,5 @@ interface RecurringTransactionRepository : CrudRepository<RecurringTransaction, 
         AND start_date <= :endDate 
         AND (end_date IS NULL OR end_date >= :startDate)
     """)
-    fun findTransactionsForDateRange(startDate: LocalDate, endDate: LocalDate): List<RecurringTransaction>
+    fun findTransactionsForDateRangeWithType(startDate: LocalDate, endDate: LocalDate): List<RecurringTransactionDto>
 }

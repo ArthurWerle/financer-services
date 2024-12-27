@@ -10,10 +10,9 @@ import java.time.LocalDateTime
 data class RecurringTransaction(
     @Id
     val id: Long? = null,
-    val categoryId: Long?,
+    val categoryId: Long,
     val amount: BigDecimal,
     val typeId: Long,
-    val typeName: String,
     val description: String?,
     val frequency: String,
     val startDate: LocalDate,
@@ -21,4 +20,19 @@ data class RecurringTransaction(
     val lastOccurrence: LocalDate?,
     val createdAt: LocalDateTime = LocalDateTime.now(),
     val updatedAt: LocalDateTime = LocalDateTime.now()
+)
+
+data class RecurringTransactionDto(
+    val id: Long? = null,
+    val categoryId: Long,
+    val amount: BigDecimal,
+    val typeId: Long,
+    val description: String?,
+    val frequency: String,
+    val startDate: LocalDate,
+    val endDate: LocalDate?,
+    val lastOccurrence: LocalDate?,
+    val createdAt: LocalDateTime = LocalDateTime.now(),
+    val updatedAt: LocalDateTime = LocalDateTime.now(),
+    val typeName: String?,
 )
