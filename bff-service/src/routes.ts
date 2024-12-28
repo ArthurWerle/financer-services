@@ -2,6 +2,8 @@ import { Router } from "express"
 import { TransactionService } from "./services/TransactionService"
 import { Transaction } from "./types/transaction"
 import { RecurringTransaction } from "./types/recurring-transaction"
+import { CategoryService } from "./services/CategoryService"
+import { Category } from "./types/category"
 
 const router = Router()
 
@@ -81,6 +83,46 @@ router.get("/expense-comparsion-history", async (req, res) => {
   } catch (error) {
     console.error(error)
     res.status(500).json({ error: "Failed to fetch data /income-comparsion-chart", cause: error })
+  }
+})
+
+router.get("/all-transactions", async (req, res) => {
+  try {
+    const service = new TransactionService()
+    const transactions = await service.get<Transaction[]>("/transactions")
+    const recurringTransactions = await service.get<RecurringTransaction[]>("/recurring-transactions")
+
+    res.json([...transactions.data, ...recurringTransactions.data])
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: "Failed to fetch data /all-transactions", cause: error })
+  }
+})
+
+router.get("/monthly-expenses-by-category", async (req, res) => {
+  try {
+    const transactionService = new TransactionService()
+    const categoryService = new CategoryService()
+    const { data: categories } = await categoryService.get<Category[]>("/category")
+
+    const currentMonth = new Date().toISOString().slice(0, 7)
+    const transactions = await transactionService.get<Transaction[]>(`/transactions/by-month/${currentMonth}`)
+    const recurringTransactions = await transactionService.get<RecurringTransaction[]>(`/recurring-transactions/by-month/${currentMonth}`)
+    const allTransactions = [...transactions.data, ...recurringTransactions.data].filter(transaction => transaction.typeName === "expense")
+
+    const totalValuesByCategory = allTransactions.reduce((acc, transaction) => {
+      const category = categories.find(category => category.ID === transaction.categoryId)
+      if (!category) return acc
+
+      const categoryName = category.Name
+      const categoryValue = acc[categoryName] || 0
+      return { ...acc, [categoryName]: categoryValue + transaction.amount }
+    }, {} as Record<string, number>)
+
+    res.json(totalValuesByCategory)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: "Failed to fetch data /total-values-by-category", cause: error })
   }
 })
 
