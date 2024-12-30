@@ -7,8 +7,8 @@ import (
 
 	"category-service/models"
 
-	"github.com/gorilla/mux"
 	"github.com/gorilla/handlers"
+	"github.com/gorilla/mux"
 	"gorm.io/gorm"
 )
 
@@ -37,10 +37,10 @@ func AppRouter(db *gorm.DB) http.Handler {
 	router.HandleFunc("/api/type/{id}", handler.UpdateTypeByIdHandler).Methods("PUT")
 
 	corsMiddleware := handlers.CORS(
-        handlers.AllowedOrigins([]string{"http://localhost:3000"}),
-        handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}),
-        handlers.AllowedHeaders([]string{"Content-Type", "Authorization"}),
-    )
+		handlers.AllowedOrigins([]string{"http://localhost:3000", "http://192.168.2.125:3000"}),
+		handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}),
+		handlers.AllowedHeaders([]string{"Content-Type", "Authorization"}),
+	)
 
 	return corsMiddleware(router)
 }

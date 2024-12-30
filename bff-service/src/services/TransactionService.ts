@@ -14,7 +14,7 @@ export class TransactionService extends Service {
     const currentPeriodAllTransactions = [...currentPeriodTransactions.data, ...currentPeriodRecurrentTransactions.data]
     const totalExpenseValue = currentPeriodAllTransactions.filter(transaction => transaction.typeName === "expense").reduce((acc, transaction) => acc + transaction.amount, 0)
     const totalIncomeValue = currentPeriodAllTransactions.filter(transaction => transaction.typeName === "income").reduce((acc, transaction) => acc + transaction.amount, 0)
-    
+
     return {
       totalExpenseValue,
       totalIncomeValue
