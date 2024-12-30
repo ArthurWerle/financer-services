@@ -12,7 +12,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U admin -d mordor"]
+      test: ["CMD-SHELL", "pg_isready"]
       interval: 10s 
       timeout: 5s
       retries: 5
@@ -34,7 +34,7 @@ services:
     env_file:
       - stack.env
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://category-service:8080/api/healthcheck"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/healthcheck"]
       interval: 5s
       timeout: 5s
       retries: 3
@@ -58,11 +58,11 @@ services:
     env_file:
       - stack.env
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://transaction-service:8080/actuator/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 50s
+      start_period: 0s
 
   bff-service:
     networks:
