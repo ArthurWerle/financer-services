@@ -12,7 +12,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready"]
+      test: ["CMD-SHELL", "pg_isready -U admin -d mordor"]
       interval: 10s 
       timeout: 5s
       retries: 5
@@ -38,7 +38,6 @@ services:
       interval: 5s
       timeout: 5s
       retries: 3
-      start_period: 40s 
 
   transaction-service:
     networks:
@@ -62,7 +61,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 0s
+      start_period: 40s
 
   bff-service:
     networks:
