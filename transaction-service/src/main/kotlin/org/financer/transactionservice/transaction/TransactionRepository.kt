@@ -7,7 +7,7 @@ import java.time.LocalDateTime
 interface TransactionRepository : CrudRepository<Transaction, String> {
     @Query("""
         SELECT t.*, ty.name as type_name, c.name as category_name
-        FROM transactions t, types ty, category c
+        FROM transactions t, types ty, categories c
         WHERE t.type_id = ty.id
          and t.category_id = c.id
     """)
@@ -15,7 +15,7 @@ interface TransactionRepository : CrudRepository<Transaction, String> {
 
     @Query("""
         SELECT t.*, ty.name as type_name, c.name as category_name
-        FROM transactions t, types ty, category c 
+        FROM transactions t, types ty, categories c 
         WHERE t.type_id = ty.id
         and t.category_id = c.id
         AND date >= :startDate 

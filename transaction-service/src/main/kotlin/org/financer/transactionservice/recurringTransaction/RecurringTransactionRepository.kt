@@ -8,14 +8,14 @@ import java.time.LocalDateTime
 interface RecurringTransactionRepository : CrudRepository<RecurringTransaction, String> {
     @Query("""
         SELECT t.*, ty.name as type_name, c.name as category_name
-         FROM recurring_transactions t, types ty, category c
+         FROM recurring_transactions t, types ty, categories c
          WHERE t.type_id = ty.id and t.category_id = c.id
     """)
     fun findAllWithTypeAndCategory(): List<RecurringTransactionDto>
 
     @Query("""
        SELECT t.*, ty.name as type_name, c.name as category_name
-         FROM recurring_transactions t, types ty, category c
+         FROM recurring_transactions t, types ty, categories c
          WHERE t.type_id = ty.id
           AND start_date <= :date 
           and t.category_id = c.id
@@ -25,7 +25,7 @@ interface RecurringTransactionRepository : CrudRepository<RecurringTransaction, 
 
     @Query("""
        SELECT t.*, ty.name as type_name, c.name as category_name
-         FROM recurring_transactions t, types ty, category c
+         FROM recurring_transactions t, types ty, categories c
          WHERE t.type_id = ty.id
         AND start_date <= :endDate 
         and t.category_id = c.id
