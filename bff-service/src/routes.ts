@@ -119,7 +119,12 @@ router.get("/monthly-expenses-by-category", async (req, res) => {
       return { ...acc, [categoryName]: categoryValue + transaction.amount }
     }, {} as Record<string, number>)
 
-    res.json(totalValuesByCategory)
+    const sortedEntries = Object.entries(totalValuesByCategory)
+      .sort(([, a], [, b]) => b - a)
+
+    const sortedObject = Object.fromEntries(sortedEntries)
+
+    res.json(sortedObject)
   } catch (error) {
     console.error(error)
     res.status(500).json({ error: "Failed to fetch data /total-values-by-category", cause: error })
