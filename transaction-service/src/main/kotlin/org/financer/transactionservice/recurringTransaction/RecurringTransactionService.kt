@@ -9,7 +9,7 @@ import java.time.YearMonth
 @Service
 class RecurringTransactionService(private val db: RecurringTransactionRepository) {
     fun findAllRecurringTransactions(): List<RecurringTransactionDto> {
-        return db.findAllWithType().toList()
+        return db.findAllWithTypeAndCategory().toList()
     }
 
     fun findRecurringTransactionById(id: String): RecurringTransaction? = db.findByIdOrNull(id)
@@ -19,15 +19,15 @@ class RecurringTransactionService(private val db: RecurringTransactionRepository
     fun findRecurringTransactionsByMonth(yearMonth: YearMonth): List<RecurringTransactionDto> {
         val startDate = yearMonth.atDay(1)
         val endDate = yearMonth.atEndOfMonth()
-        return db.findTransactionsForDateRangeWithType(startDate, endDate)
+        return db.findTransactionsForDateRangeWithTypeAndCategory(startDate, endDate)
     }
 
     fun findRecurringTransactionsByWeek(startDate: LocalDate): List<RecurringTransactionDto> {
         val endDate = startDate.plusDays(6)
-        return db.findTransactionsForDateRangeWithType(startDate, endDate)
+        return db.findTransactionsForDateRangeWithTypeAndCategory(startDate, endDate)
     }
 
     fun findRecurringTransactionsByDay(date: LocalDate): List<RecurringTransactionDto> {
-        return db.findActiveTransactionsAtDateWithType(date)
+        return db.findActiveTransactionsAtDateWithTypeAndCategory(date)
     }
 }

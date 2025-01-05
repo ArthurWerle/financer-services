@@ -9,7 +9,7 @@ import java.time.YearMonth
 @Service
 class TransactionService(private val db: TransactionRepository) {
     fun findTransactions(): List<TransactionDTO> {
-        return db.findAllWithType().toList()
+        return db.findAllWithTypeAndCategory().toList()
     }
 
     fun findTransactionById(id: String): Transaction? = db.findByIdOrNull(id)
@@ -19,18 +19,18 @@ class TransactionService(private val db: TransactionRepository) {
     fun findTransactionsByMonth(yearMonth: YearMonth): List<TransactionDTO> {
         val startDateTime = yearMonth.atDay(1).atStartOfDay()
         val endDateTime = yearMonth.atEndOfMonth().atTime(LocalTime.MAX)
-        return db.findByDateBetweenWithType(startDateTime, endDateTime)
+        return db.findByDateBetweenWithTypeAndCategory(startDateTime, endDateTime)
     }
 
     fun findTransactionsByWeek(startDate: LocalDate): List<TransactionDTO> {
         val startDateTime = startDate.atStartOfDay()
         val endDateTime = startDate.plusDays(6).atTime(LocalTime.MAX)
-        return db.findByDateBetweenWithType(startDateTime, endDateTime)
+        return db.findByDateBetweenWithTypeAndCategory(startDateTime, endDateTime)
     }
 
     fun findTransactionsByDay(date: LocalDate): List<TransactionDTO> {
         val startDateTime = date.atStartOfDay()
         val endDateTime = date.atTime(LocalTime.MAX)
-        return db.findByDateBetweenWithType(startDateTime, endDateTime)
+        return db.findByDateBetweenWithTypeAndCategory(startDateTime, endDateTime)
     }
 }

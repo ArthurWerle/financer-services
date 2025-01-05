@@ -7,27 +7,29 @@ import java.time.LocalDateTime
 
 interface RecurringTransactionRepository : CrudRepository<RecurringTransaction, String> {
     @Query("""
-        SELECT t.*, ty.name as type_name
-         FROM recurring_transactions t, types ty
-         WHERE t.type_id = ty.id
+        SELECT t.*, ty.name as type_name, c.name as category_name
+         FROM recurring_transactions t, types ty, category c
+         WHERE t.type_id = ty.id and t.category_id = c.id
     """)
-    fun findAllWithType(): List<RecurringTransactionDto>
+    fun findAllWithTypeAndCategory(): List<RecurringTransactionDto>
 
     @Query("""
-       SELECT t.*, ty.name as type_name
-         FROM recurring_transactions t, types ty
+       SELECT t.*, ty.name as type_name, c.name as category_name
+         FROM recurring_transactions t, types ty, category c
          WHERE t.type_id = ty.id
           AND start_date <= :date 
+          and t.category_id = c.id
         AND (end_date IS NULL OR end_date >= :date)
     """)
-    fun findActiveTransactionsAtDateWithType(date: LocalDate): List<RecurringTransactionDto>
+    fun findActiveTransactionsAtDateWithTypeAndCategory(date: LocalDate): List<RecurringTransactionDto>
 
     @Query("""
-       SELECT t.*, ty.name as type_name
-         FROM recurring_transactions t, types ty
+       SELECT t.*, ty.name as type_name, c.name as category_name
+         FROM recurring_transactions t, types ty, category c
          WHERE t.type_id = ty.id
         AND start_date <= :endDate 
+        and t.category_id = c.id
         AND (end_date IS NULL OR end_date >= :startDate)
     """)
-    fun findTransactionsForDateRangeWithType(startDate: LocalDate, endDate: LocalDate): List<RecurringTransactionDto>
+    fun findTransactionsForDateRangeWithTypeAndCategory(startDate: LocalDate, endDate: LocalDate): List<RecurringTransactionDto>
 }

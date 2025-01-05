@@ -25,6 +25,7 @@ data class RecurringTransaction(
 data class RecurringTransactionDto(
     val id: Long? = null,
     val categoryId: Long,
+    val categoryName: String,
     val amount: BigDecimal,
     val typeId: Long,
     val description: String?,
