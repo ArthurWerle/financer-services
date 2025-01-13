@@ -16,6 +16,23 @@ class TransactionService(private val db: TransactionRepository) {
 
     fun save(transaction: Transaction): Transaction = db.save(transaction)
 
+    fun delete(id: String): Unit = db.deleteById(id)
+
+    fun update(id: String, updatedTransaction: Transaction): Transaction {
+        val existingTransaction = db.findByIdOrNull(id)
+            ?: throw IllegalArgumentException("Transaction with id $id not found")
+
+        val transactionToSave = existingTransaction.copy(
+            typeId = updatedTransaction.typeId,
+            categoryId = updatedTransaction.categoryId,
+            date = updatedTransaction.date,
+            amount = updatedTransaction.amount,
+            description = updatedTransaction.description
+        )
+
+        return db.save(transactionToSave)
+    }
+
     fun findTransactionsByMonth(yearMonth: YearMonth): List<TransactionDTO> {
         val startDateTime = yearMonth.atDay(1).atStartOfDay()
         val endDateTime = yearMonth.atEndOfMonth().atTime(LocalTime.MAX)

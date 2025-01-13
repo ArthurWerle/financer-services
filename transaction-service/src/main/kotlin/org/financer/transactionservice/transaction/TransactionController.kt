@@ -23,6 +23,14 @@ class TransactionController(private val service: TransactionService) {
     fun getTransaction(@PathVariable id: String): ResponseEntity<Transaction> =
         service.findTransactionById(id).toResponseEntity()
 
+    @PatchMapping("/{id}")
+    fun updateTransaction(@PathVariable id: String, @RequestBody transaction: Transaction): Transaction =
+        service.update(id, transaction)
+
+    @DeleteMapping("/{id}")
+    fun deleteTransaction(@PathVariable id: String): Unit =
+        service.delete(id)
+
     @GetMapping("/by-month/{yearMonth}")
     fun getTransactionsByMonth(
         @PathVariable @DateTimeFormat(pattern = "yyyy-MM") yearMonth: YearMonth

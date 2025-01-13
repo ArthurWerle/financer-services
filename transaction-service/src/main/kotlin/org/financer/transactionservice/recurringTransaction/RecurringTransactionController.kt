@@ -24,6 +24,14 @@ class RecurringTransactionController(private val service: RecurringTransactionSe
     fun getRecurringTransaction(@PathVariable id: String): ResponseEntity<RecurringTransaction> =
         service.findRecurringTransactionById(id).toResponseEntity()
 
+    @PatchMapping("/{id}")
+    fun updateTransaction(@PathVariable id: String, @RequestBody transaction: RecurringTransaction): RecurringTransaction =
+        service.update(id, transaction)
+
+    @DeleteMapping("/{id}")
+    fun deleteRecurringTransaction(@PathVariable id: String): Unit =
+        service.delete(id)
+
     @GetMapping("/by-month/{yearMonth}")
     fun getTransactionsByMonth(
         @PathVariable @DateTimeFormat(pattern = "yyyy-MM") yearMonth: YearMonth
