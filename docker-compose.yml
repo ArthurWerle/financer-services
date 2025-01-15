@@ -17,6 +17,31 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s 
+    
+  backup:
+    image: alpine:latest
+    volumes:
+      - ./backup-postgres.sh:/backup.sh
+      - ./stack.env:/stack.env
+      - /mnt/sda/backups/financer:/backups
+      - /etc/localtime:/etc/localtime:ro
+      - /home/arthur/.muttrc:/root/.muttrc:ro
+    environment:
+      TZ: "America/Sao_Paulo"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    entrypoint: |
+      /bin/sh -c '
+      apk add --no-cache bash postgresql-client msmtp ca-certificates
+      chmod +x /backup.sh
+      bash /backup.sh  # Run backup immediately
+      while true; do
+        sleep 604800  # Wait a week
+        bash /backup.sh  # Run backup after sleep
+      done'
+    networks:
+      - database
 
   category-service:
     networks:
