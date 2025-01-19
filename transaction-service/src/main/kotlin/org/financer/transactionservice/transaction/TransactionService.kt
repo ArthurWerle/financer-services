@@ -50,4 +50,12 @@ class TransactionService(private val db: TransactionRepository) {
         val endDateTime = date.atTime(LocalTime.MAX)
         return db.findByDateBetweenWithTypeAndCategory(startDateTime, endDateTime)
     }
+
+    fun findLastTransactionsWithTypeAndCategory(limit: Int): List<TransactionDTO> {
+        return db.findLastTransactionsWithTypeAndCategory(limit)
+    }
+
+    fun findBiggestTransactionsWithTypeAndCategory(limit: Int): List<TransactionDTO> {
+        return db.findBiggestTransactionsWithTypeAndCategory(limit)
+    }
 }

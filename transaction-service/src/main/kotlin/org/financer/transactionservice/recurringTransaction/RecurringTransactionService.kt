@@ -1,6 +1,7 @@
 package org.financer.transactionservice.recurringTransaction
 
 import org.financer.transactionservice.transaction.Transaction
+import org.financer.transactionservice.transaction.TransactionDTO
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.time.LocalDate
@@ -49,5 +50,13 @@ class RecurringTransactionService(private val db: RecurringTransactionRepository
 
     fun findRecurringTransactionsByDay(date: LocalDate): List<RecurringTransactionDto> {
         return db.findActiveTransactionsAtDateWithTypeAndCategory(date)
+    }
+
+    fun findLastRecurringTransactionsWithTypeAndCategory(limit: Int): List<RecurringTransactionDto> {
+        return db.findLastTransactionsWithTypeAndCategory(limit)
+    }
+
+    fun findBiggestRecurringTransactionsWithTypeAndCategory(limit: Int): List<RecurringTransactionDto> {
+        return db.findBiggestTransactionsWithTypeAndCategory(limit)
     }
 }

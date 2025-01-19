@@ -22,4 +22,24 @@ interface TransactionRepository : CrudRepository<Transaction, String> {
         AND date <= :endDate
     """)
     fun findByDateBetweenWithTypeAndCategory(startDate: LocalDateTime, endDate: LocalDateTime): List<TransactionDTO>
+
+    @Query("""
+        SELECT t.*, ty.name as type_name, c.name as category_name
+        FROM transactions t, types ty, categories c
+        WHERE t.type_id = ty.id
+         and t.category_id = c.id
+        ORDER BY t.date DESC
+        LIMIT :limit
+    """)
+    fun findLastTransactionsWithTypeAndCategory(limit: Int): List<TransactionDTO>
+
+    @Query("""
+        SELECT t.*, ty.name as type_name, c.name as category_name
+        FROM transactions t, types ty, categories c
+        WHERE t.type_id = ty.id
+         and t.category_id = c.id
+        ORDER BY t.amount
+        LIMIT :limit
+    """)
+    fun findBiggestTransactionsWithTypeAndCategory(limit: Int): List<TransactionDTO>
 }

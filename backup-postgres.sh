@@ -4,6 +4,11 @@
 # Source environment variables
 source /stack.env
 
+if [ "$ENV" = "test" ]; then
+  echo "Skipping script execution in test environment."
+  exit 0
+fi
+
 # Set timestamp (this needs to be generated at runtime)
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 
