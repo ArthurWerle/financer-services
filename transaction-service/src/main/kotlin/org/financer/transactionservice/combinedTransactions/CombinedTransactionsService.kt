@@ -24,6 +24,7 @@ private fun TransactionDTO.toCombinedTransaction() = object : CombinedTransactio
     override val sortDate: LocalDateTime = this@toCombinedTransaction.date ?: LocalDateTime.now()
     override val typeName: String = this@toCombinedTransaction.typeName.toString()
     override val categoryName = this@toCombinedTransaction.categoryName
+
 }
 
 private fun RecurringTransactionDto.toCombinedTransaction() = object : CombinedTransaction {
@@ -39,31 +40,35 @@ class CombinedTransactionService(
     private val transactionService: TransactionService,
     private val recurringTransactionService: RecurringTransactionService
 ) {
-    fun getLatestCombinedTransactions(): List<CombinedTransaction> {
+    fun getLatestCombinedTransactions(limit: Int?): List<CombinedTransaction> {
+        val transactionsLimit = limit ?: TRANSACTIONS_LIMIT
+
         val regularTransactions = transactionService
-            .findLastTransactionsWithTypeAndCategory(TRANSACTIONS_LIMIT)
+            .findLastTransactionsWithTypeAndCategory(transactionsLimit)
             .map { it.toCombinedTransaction() }
 
         val recurringTransactions = recurringTransactionService
-            .findLastRecurringTransactionsWithTypeAndCategory(TRANSACTIONS_LIMIT)
+            .findLastRecurringTransactionsWithTypeAndCategory(transactionsLimit)
             .map { it.toCombinedTransaction() }
 
         return (regularTransactions + recurringTransactions)
             .sortedByDescending { it.sortDate }
-            .take(TRANSACTIONS_LIMIT)
+            .take(transactionsLimit)
     }
 
-    fun getBiggestCombinedTransactions(): List<CombinedTransaction> {
+    fun getBiggestCombinedTransactions(limit: Int?): List<CombinedTransaction> {
+        val transactionsLimit = limit ?: TRANSACTIONS_LIMIT
+
         val regularTransactions = transactionService
-            .findBiggestTransactionsWithTypeAndCategory(TRANSACTIONS_LIMIT)
+            .findBiggestTransactionsWithTypeAndCategory(transactionsLimit)
             .map { it.toCombinedTransaction() }
 
         val recurringTransactions = recurringTransactionService
-            .findBiggestRecurringTransactionsWithTypeAndCategory(TRANSACTIONS_LIMIT)
+            .findBiggestRecurringTransactionsWithTypeAndCategory(transactionsLimit)
             .map { it.toCombinedTransaction() }
 
         return (regularTransactions + recurringTransactions)
-            .sortedBy { it.amount }
-            .take(TRANSACTIONS_LIMIT)
+            .sortedByDescending { it.amount }
+            .take(transactionsLimit)
     }
 }

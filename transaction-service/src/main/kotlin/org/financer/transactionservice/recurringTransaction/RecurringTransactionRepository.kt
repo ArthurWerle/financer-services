@@ -7,18 +7,18 @@ import java.time.LocalDate
 interface RecurringTransactionRepository : CrudRepository<RecurringTransaction, String> {
     @Query("""
         SELECT t.*, ty.name as type_name, c.name as category_name
-         FROM recurring_transactions t, types ty, categories c
-         WHERE t.type_id = ty.id and t.category_id = c.id
+         FROM recurring_transactions t
+         JOIN types ty ON t.type_id = ty.id
+         JOIN categories c ON t.category_id = c.id
     """)
     fun findAllWithTypeAndCategory(): List<RecurringTransactionDto>
 
     @Query("""
        SELECT t.*, ty.name as type_name, c.name as category_name
-         FROM recurring_transactions t, types ty, categories c
-         WHERE t.type_id = ty.id
-          AND start_date <= :date 
-          and t.category_id = c.id
-        AND (end_date IS NULL OR end_date >= :date)
+         FROM recurring_transactions t
+         JOIN types ty ON t.type_id = ty.id
+         JOIN categories c ON t.category_id = c.id
+        WHERE (end_date IS NULL OR end_date >= :date)
     """)
     fun findActiveTransactionsAtDateWithTypeAndCategory(date: LocalDate): List<RecurringTransactionDto>
 
@@ -34,21 +34,23 @@ interface RecurringTransactionRepository : CrudRepository<RecurringTransaction, 
 
     @Query("""
         SELECT t.*, ty.name as type_name, c.name as category_name
-        FROM recurring_transactions t, types ty, categories c
-        WHERE t.type_id = ty.id
-         and t.category_id = c.id
-        ORDER BY t.start_date DESC
-        LIMIT :limit
+        FROM recurring_transactions t
+        JOIN types ty ON t.type_id = ty.id
+        JOIN categories c ON t.category_id = c.id
+    ORDER BY t.start_date DESC
+       LIMIT :limit
     """)
     fun findLastTransactionsWithTypeAndCategory(limit: Int): List<RecurringTransactionDto>
 
     @Query("""
-        SELECT t.*, ty.name as type_name, c.name as category_name
-        FROM recurring_transactions t, types ty, categories c
-        WHERE t.type_id = ty.id
-         and t.category_id = c.id
-        ORDER BY t.amount
-        LIMIT :limit
+        SELECT t.*, ty.name AS type_name, c.name AS category_name
+          FROM recurring_transactions t
+          JOIN types ty ON t.type_id = ty.id
+          JOIN categories c ON t.category_id = c.id
+         WHERE ty.name != 'income'
+      ORDER BY t.amount DESC
+         LIMIT :limit;
+
     """)
     fun findBiggestTransactionsWithTypeAndCategory(limit: Int): List<RecurringTransactionDto>
 }

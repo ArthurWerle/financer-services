@@ -20,6 +20,7 @@ services:
     
   backup:
     image: alpine:latest
+    restart: unless-stopped
     volumes:
       - ./backup-postgres.sh:/backup.sh
       - ./stack.env:/stack.env
@@ -51,6 +52,7 @@ services:
       postgres:
         condition: service_healthy
     pull_policy: build
+    restart: unless-stopped
     build:
       context: ./category-service/
       dockerfile: ./${DOCKERFILE:-Dockerfile}
@@ -74,6 +76,7 @@ services:
       category-service:
         condition: service_healthy
     pull_policy: build
+    restart: unless-stopped
     build:
       context: ./transaction-service/
       dockerfile: Dockerfile
@@ -99,6 +102,7 @@ services:
       transaction-service:
         condition: service_healthy
     pull_policy: build
+    restart: unless-stopped
     build:
       context: ./bff-service/
       dockerfile: Dockerfile

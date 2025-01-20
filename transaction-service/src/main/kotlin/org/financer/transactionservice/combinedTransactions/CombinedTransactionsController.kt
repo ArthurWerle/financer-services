@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.*
 class CombinedTransactionsController(
     private val service: CombinedTransactionService
 ) {
-    @GetMapping("/latest/by-date")
-    fun getLatest() = ResponseEntity.ok(service.getLatestCombinedTransactions())
+    @GetMapping("/latest/{limit}")
+    fun getLatest(@PathVariable limit: Int?) = ResponseEntity.ok(service.getLatestCombinedTransactions(limit))
 
-    @GetMapping("/latest/by-amount")
-    fun getBiggest() = ResponseEntity.ok(service.getBiggestCombinedTransactions())
+    @GetMapping("/biggest/{limit}")
+    fun getBiggest(@PathVariable limit: Int?) = ResponseEntity.ok(service.getBiggestCombinedTransactions(limit))
 }
