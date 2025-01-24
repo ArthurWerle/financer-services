@@ -57,7 +57,7 @@ func (r *Router) Healthcheck(w http.ResponseWriter, req *http.Request) {
 func (r *Router) ListCategoriesHandler(w http.ResponseWriter, req *http.Request) {
 	var categories []models.Category
 
-	result := r.DB.Find(&categories)
+	result := r.DB.Order("name ASC").Find(&categories)
 	if result.Error != nil {
 		http.Error(w, "Failed to query categories", http.StatusInternalServerError)
 		log.Printf("Database query error: %v", result.Error)
