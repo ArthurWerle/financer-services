@@ -53,4 +53,20 @@ interface RecurringTransactionRepository : CrudRepository<RecurringTransaction, 
 
     """)
     fun findBiggestTransactionsWithTypeAndCategory(limit: Int): List<RecurringTransactionDto>
+
+    @Query("""
+        SELECT t.*, ty.name AS type_name, c.name AS category_name
+          FROM recurring_transactions t
+          JOIN types ty ON t.type_id = ty.id
+          JOIN categories c ON t.category_id = c.id
+        WHERE (:#{#categories == null} OR t.category_id IN (:#{#categories}))
+           AND (
+               :currentMonth = false 
+               OR (
+                   CURRENT_DATE BETWEEN t.start_date AND t.end_date
+               )
+           )
+      ORDER BY t.amount DESC
+    """)
+    fun findTransactionsByCategoryAndDateBetween(currentMonth: Boolean?, categories: List<Int>?): List<RecurringTransactionDto>
 }

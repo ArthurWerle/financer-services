@@ -1,5 +1,7 @@
 package org.financer.transactionservice.transaction
 
+import org.financer.transactionservice.combinedTransactions.CombinedTransactionsController
+import org.financer.transactionservice.recurringTransaction.RecurringTransactionDto
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.time.LocalDate
@@ -57,5 +59,9 @@ class TransactionService(private val db: TransactionRepository) {
 
     fun findBiggestTransactionsWithTypeAndCategory(limit: Int): List<TransactionDTO> {
         return db.findBiggestTransactionsWithTypeAndCategory(limit)
+    }
+
+    fun findTransactionsByCategoryAndDateBetween(filters: CombinedTransactionsController.TransactionFilters): List<TransactionDTO> {
+        return db.findTransactionsByCategoryAndDateBetween(filters.currentMonth, filters.categories)
     }
 }

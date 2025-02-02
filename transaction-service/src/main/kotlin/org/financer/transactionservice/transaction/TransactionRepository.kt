@@ -1,5 +1,6 @@
 package org.financer.transactionservice.transaction
 
+import org.financer.transactionservice.recurringTransaction.RecurringTransactionDto
 import org.springframework.data.jdbc.repository.query.Query
 import org.springframework.data.repository.CrudRepository
 import java.time.LocalDateTime
@@ -44,4 +45,21 @@ interface TransactionRepository : CrudRepository<Transaction, String> {
         LIMIT :limit
     """)
     fun findBiggestTransactionsWithTypeAndCategory(limit: Int): List<TransactionDTO>
+
+    @Query("""
+        SELECT t.*, ty.name AS type_name, c.name AS category_name
+        FROM transactions t
+        JOIN types ty ON t.type_id = ty.id
+        JOIN categories c ON t.category_id = c.id
+        WHERE (:#{#categories == null} OR t.category_id IN (:#{#categories}))
+          AND (
+              :currentMonth = false
+              OR (
+                  date_trunc('month', CURRENT_DATE) = date_trunc('month', t.date)
+              )
+          )
+        ORDER BY t.amount DESC
+    """)
+    fun findTransactionsByCategoryAndDateBetween(currentMonth: Boolean?, categories: List<Int>?): List<TransactionDTO>
+
 }
