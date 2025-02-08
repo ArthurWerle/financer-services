@@ -41,6 +41,7 @@ interface TransactionRepository : CrudRepository<Transaction, String> {
         JOIN types ty ON t.type_id = ty.id
         JOIN categories c ON t.category_id = c.id
         WHERE ty.name != 'income'
+          AND date_trunc('month', CURRENT_DATE) = date_trunc('month', t.date)
         ORDER BY t.amount DESC
         LIMIT :limit
     """)

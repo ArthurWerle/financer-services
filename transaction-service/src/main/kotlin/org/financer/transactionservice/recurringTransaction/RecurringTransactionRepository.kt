@@ -47,7 +47,12 @@ interface RecurringTransactionRepository : CrudRepository<RecurringTransaction, 
           FROM recurring_transactions t
           JOIN types ty ON t.type_id = ty.id
           JOIN categories c ON t.category_id = c.id
-         WHERE ty.name != 'income'
+         WHERE ty.name != 'income' 
+           AND ( 
+              CASE
+                WHEN t.end_date IS NULL THEN CURRENT_DATE >= t.start_date 
+                ELSE CURRENT_DATE BETWEEN t.start_date AND t.end_date
+              END )
       ORDER BY t.amount DESC
          LIMIT :limit;
 
@@ -61,10 +66,12 @@ interface RecurringTransactionRepository : CrudRepository<RecurringTransaction, 
           JOIN categories c ON t.category_id = c.id
         WHERE (:#{#categories == null} OR t.category_id IN (:#{#categories}))
            AND (
-               :currentMonth = false 
-               OR (
-                   CURRENT_DATE BETWEEN t.start_date AND t.end_date
-               )
+               :currentMonth = false OR (
+                  CASE
+                    WHEN t.end_date IS NULL THEN CURRENT_DATE >= t.start_date 
+                    ELSE CURRENT_DATE BETWEEN t.start_date AND t.end_date
+                  END
+                )
            )
       ORDER BY t.amount DESC
     """)
