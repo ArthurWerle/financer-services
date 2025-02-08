@@ -12,7 +12,6 @@ class CombinedTransactionsController(
         val categories: List<Int>? = null,
         val currentMonth: Boolean = false,
     )
-
     @GetMapping("/latest/{limit}")
     fun getLatest(@PathVariable limit: Int?) = ResponseEntity.ok(service.getLatestCombinedTransactions(limit))
 

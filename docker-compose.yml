@@ -91,6 +91,16 @@ services:
       retries: 5
       start_period: 40s
 
+  redis: 
+    image: "redis:latest" 
+    networks:
+      - database
+      - back-end 
+    ports:
+      - "6379:6379" 
+    volumes:
+      - redis_data:/data
+
   bff-service:
     networks:
       - back-end
@@ -113,6 +123,7 @@ services:
 
 volumes:
   postgres_data:
+  redis_data:
 
 networks:
   database:

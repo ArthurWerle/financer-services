@@ -1,7 +1,9 @@
 package org.financer.transactionservice.recurringTransaction
 
+import org.financer.transactionservice.combinedTransactions.CombinedTransaction
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Table
+import java.io.Serializable
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -36,4 +38,17 @@ data class RecurringTransactionDto(
     val createdAt: LocalDateTime = LocalDateTime.now(),
     val updatedAt: LocalDateTime = LocalDateTime.now(),
     val typeName: String?,
-)
+): Serializable
+
+private fun RecurringTransactionDto.toCombinedTransaction() = object : CombinedTransaction {
+    override val amount = this@toCombinedTransaction.amount
+    override val description: String = this@toCombinedTransaction.description.toString()
+    override val sortDate: LocalDateTime = this@toCombinedTransaction.startDate.atStartOfDay()
+    override val date = null
+    override val typeName: String = this@toCombinedTransaction.typeName.toString()
+    override val categoryName = this@toCombinedTransaction.categoryName
+    override val id: String = this@toCombinedTransaction.id.toString()
+    override val startDate: LocalDateTime? = this@toCombinedTransaction.startDate.atStartOfDay()
+    override val endDate: LocalDateTime? = this@toCombinedTransaction.endDate?.atStartOfDay()
+    override val frequency = this@toCombinedTransaction.frequency
+}

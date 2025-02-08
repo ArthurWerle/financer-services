@@ -3,6 +3,8 @@ package org.financer.transactionservice.recurringTransaction
 import org.financer.transactionservice.combinedTransactions.CombinedTransactionsController
 import org.financer.transactionservice.transaction.Transaction
 import org.financer.transactionservice.transaction.TransactionDTO
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.cache.annotation.Caching
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.time.LocalDate
@@ -17,10 +19,40 @@ class RecurringTransactionService(private val db: RecurringTransactionRepository
 
     fun findRecurringTransactionById(id: String): RecurringTransaction? = db.findByIdOrNull(id)
 
+    @Caching(evict = [
+        CacheEvict(value = ["getAllTransactions"]),
+        CacheEvict(value = ["getLatestCombinedTransactions"], allEntries = true),
+        CacheEvict(value = ["getBiggestCombinedTransactions"], allEntries = true),
+        CacheEvict(value = ["findTransactionById"], allEntries = true),
+        CacheEvict(value = ["findTransactionsByMonth"], allEntries = true),
+        CacheEvict(value = ["findTransactionsByWeek"], allEntries = true),
+        CacheEvict(value = ["findTransactionsByDay"], allEntries = true),
+        CacheEvict(value = ["findTransactions"]),
+    ])
     fun save(transaction: RecurringTransaction): RecurringTransaction = db.save(transaction)
 
+    @Caching(evict = [
+        CacheEvict(value = ["getAllTransactions"]),
+        CacheEvict(value = ["getLatestCombinedTransactions"], allEntries = true),
+        CacheEvict(value = ["getBiggestCombinedTransactions"], allEntries = true),
+        CacheEvict(value = ["findTransactionById"], allEntries = true),
+        CacheEvict(value = ["findTransactionsByMonth"], allEntries = true),
+        CacheEvict(value = ["findTransactionsByWeek"], allEntries = true),
+        CacheEvict(value = ["findTransactionsByDay"], allEntries = true),
+        CacheEvict(value = ["findTransactions"]),
+    ])
     fun delete(id: String): Unit = db.deleteById(id)
 
+    @Caching(evict = [
+        CacheEvict(value = ["getAllTransactions"]),
+        CacheEvict(value = ["getLatestCombinedTransactions"], allEntries = true),
+        CacheEvict(value = ["getBiggestCombinedTransactions"], allEntries = true),
+        CacheEvict(value = ["findTransactionById"], allEntries = true),
+        CacheEvict(value = ["findTransactionsByMonth"], allEntries = true),
+        CacheEvict(value = ["findTransactionsByWeek"], allEntries = true),
+        CacheEvict(value = ["findTransactionsByDay"], allEntries = true),
+        CacheEvict(value = ["findTransactions"]),
+    ])
     fun update(id: String, updatedTransaction: RecurringTransaction): RecurringTransaction {
         val existingTransaction = db.findByIdOrNull(id)
             ?: throw IllegalArgumentException("Transaction with id $id not found")
