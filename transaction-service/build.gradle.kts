@@ -33,13 +33,15 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
-  implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
 	runtimeOnly("org.postgresql:postgresql")
-  runtimeOnly("com.h2database:h2")
+    runtimeOnly("com.h2database:h2")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
-  testImplementation("org.springframework.boot:spring-boot-starter-test") {
-    exclude(group = "org.junit.vintage")
-}
+    testImplementation("org.springframework.boot:spring-boot-starter-test") {
+     exclude(group = "org.junit.vintage")
+	}
+	testImplementation("io.mockk:mockk:1.13.8")
+	testImplementation("io.mockk:mockk-junit5:1.13.8")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
