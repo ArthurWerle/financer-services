@@ -24,6 +24,7 @@ java {
 
 repositories {
 	mavenCentral()
+	maven { url = uri("https://oss.sonatype.org/content/repositories/snapshots/") }
 }
 
 dependencies {
@@ -35,13 +36,14 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
 	runtimeOnly("org.postgresql:postgresql")
-    runtimeOnly("com.h2database:h2")
+	testImplementation("com.h2database:h2")
+	testImplementation("org.springframework:spring-test")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
      exclude(group = "org.junit.vintage")
 	}
-	testImplementation("io.mockk:mockk:1.13.8")
-	testImplementation("io.mockk:mockk-junit5:1.13.8")
+	testImplementation("io.mockk:mockk:1.13.9")
+	testImplementation("io.mockk:mockk-agent:1.13.9")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
