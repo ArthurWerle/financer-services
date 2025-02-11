@@ -93,6 +93,7 @@ services:
 
   redis: 
     image: "redis:latest" 
+    restart: unless-stopped
     networks:
       - database
       - back-end 
