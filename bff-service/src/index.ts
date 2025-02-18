@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 3000
 app.use(morgan("combined"))
 app.use(errorHandler)
 
-const allowedOrigins = ['http://localhost:3000', 'http://192.168.2.125:3000']
+const allowedOrigins = ['http://localhost:3000', `${process.env.CLIENT_SIDE_HOST}`]
 
 const corsOptions = {
   origin: function (origin: any, callback: any) {
