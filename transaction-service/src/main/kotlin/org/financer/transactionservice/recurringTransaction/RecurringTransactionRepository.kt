@@ -6,7 +6,19 @@ import java.time.LocalDate
 
 interface RecurringTransactionRepository : CrudRepository<RecurringTransaction, String> {
     @Query("""
-        SELECT t.*, ty.name as type_name, c.name as category_name
+      SELECT t.id,
+             t.category_id,
+             t.amount,
+             t.type_id,
+             t.description,
+             t.created_at,
+             t.updated_at,
+             t.frequency,
+             t.last_occurrence,
+             t.start_date AT TIME ZONE 'America/Sao_Paulo' AS start_date,
+             t.end_date AT TIME ZONE 'America/Sao_Paulo' AS end_date,
+             ty.name as type_name, 
+             c.name as category_name
          FROM recurring_transactions t
          JOIN types ty ON t.type_id = ty.id
          JOIN categories c ON t.category_id = c.id
@@ -14,7 +26,19 @@ interface RecurringTransactionRepository : CrudRepository<RecurringTransaction, 
     fun findAllWithTypeAndCategory(): List<RecurringTransactionDto>
 
     @Query("""
-       SELECT t.*, ty.name as type_name, c.name as category_name
+      SELECT t.id,
+             t.category_id,
+             t.amount,
+             t.type_id,
+             t.description,
+             t.created_at,
+             t.updated_at,
+             t.frequency,
+             t.last_occurrence,
+             t.start_date AT TIME ZONE 'America/Sao_Paulo' AS start_date,
+             t.end_date AT TIME ZONE 'America/Sao_Paulo' AS end_date,
+             ty.name as type_name, 
+             c.name as category_name
          FROM recurring_transactions t
          JOIN types ty ON t.type_id = ty.id
          JOIN categories c ON t.category_id = c.id
@@ -23,7 +47,19 @@ interface RecurringTransactionRepository : CrudRepository<RecurringTransaction, 
     fun findActiveTransactionsAtDateWithTypeAndCategory(date: LocalDate): List<RecurringTransactionDto>
 
     @Query("""
-       SELECT t.*, ty.name as type_name, c.name as category_name
+      SELECT t.id,
+             t.category_id,
+             t.amount,
+             t.type_id,
+             t.description,
+             t.created_at,
+             t.updated_at,
+             t.frequency,
+             t.last_occurrence,
+             t.start_date AT TIME ZONE 'America/Sao_Paulo' AS start_date,
+             t.end_date AT TIME ZONE 'America/Sao_Paulo' AS end_date,
+             ty.name as type_name, 
+             c.name as category_name
          FROM recurring_transactions t, types ty, categories c
          WHERE t.type_id = ty.id
         AND start_date <= :endDate 
@@ -33,7 +69,19 @@ interface RecurringTransactionRepository : CrudRepository<RecurringTransaction, 
     fun findTransactionsForDateRangeWithTypeAndCategory(startDate: LocalDate, endDate: LocalDate): List<RecurringTransactionDto>
 
     @Query("""
-        SELECT t.*, ty.name as type_name, c.name as category_name
+      SELECT t.id,
+             t.category_id,
+             t.amount,
+             t.type_id,
+             t.description,
+             t.created_at,
+             t.updated_at,
+             t.frequency,
+             t.last_occurrence,
+             t.start_date AT TIME ZONE 'America/Sao_Paulo' AS start_date,
+             t.end_date AT TIME ZONE 'America/Sao_Paulo' AS end_date,
+             ty.name as type_name, 
+             c.name as category_name
         FROM recurring_transactions t
         JOIN types ty ON t.type_id = ty.id
         JOIN categories c ON t.category_id = c.id
@@ -43,7 +91,19 @@ interface RecurringTransactionRepository : CrudRepository<RecurringTransaction, 
     fun findLastTransactionsWithTypeAndCategory(limit: Int): List<RecurringTransactionDto>
 
     @Query("""
-        SELECT t.*, ty.name AS type_name, c.name AS category_name
+      SELECT t.id,
+             t.category_id,
+             t.amount,
+             t.type_id,
+             t.description,
+             t.created_at,
+             t.updated_at,
+             t.frequency,
+             t.last_occurrence,
+             t.start_date AT TIME ZONE 'America/Sao_Paulo' AS start_date,
+             t.end_date AT TIME ZONE 'America/Sao_Paulo' AS end_date,
+             ty.name as type_name, 
+             c.name as category_name
           FROM recurring_transactions t
           JOIN types ty ON t.type_id = ty.id
           JOIN categories c ON t.category_id = c.id
@@ -60,7 +120,19 @@ interface RecurringTransactionRepository : CrudRepository<RecurringTransaction, 
     fun findBiggestTransactionsWithTypeAndCategory(limit: Int): List<RecurringTransactionDto>
 
     @Query("""
-        SELECT t.*, ty.name AS type_name, c.name AS category_name
+      SELECT t.id,
+             t.category_id,
+             t.amount,
+             t.type_id,
+             t.description,
+             t.created_at,
+             t.updated_at,
+             t.frequency,
+             t.last_occurrence,
+             t.start_date AT TIME ZONE 'America/Sao_Paulo' AS start_date,
+             t.end_date AT TIME ZONE 'America/Sao_Paulo' AS end_date,
+             ty.name as type_name, 
+             c.name as category_name
           FROM recurring_transactions t
           JOIN types ty ON t.type_id = ty.id
           JOIN categories c ON t.category_id = c.id

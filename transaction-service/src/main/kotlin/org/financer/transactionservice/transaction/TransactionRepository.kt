@@ -7,7 +7,16 @@ import java.time.LocalDateTime
 
 interface TransactionRepository : CrudRepository<Transaction, String> {
     @Query("""
-        SELECT t.*, ty.name as type_name, c.name as category_name
+      SELECT t.id,
+             t.category_id,
+             t.amount,
+             t.type_id,
+             t.description,
+             t.created_at,
+             t.updated_at,
+             t.date AT TIME ZONE 'America/Sao_Paulo' AS date,
+             ty.name as type_name, 
+             c.name as category_name
         FROM transactions t
         JOIN types ty ON t.type_id = ty.id
         JOIN categories c ON t.category_id = c.id
@@ -15,7 +24,16 @@ interface TransactionRepository : CrudRepository<Transaction, String> {
     fun findAllWithTypeAndCategory(): List<TransactionDTO>
 
     @Query("""
-        SELECT t.*, ty.name as type_name, c.name as category_name
+      SELECT t.id,
+             t.category_id,
+             t.amount,
+             t.type_id,
+             t.description,
+             t.created_at,
+             t.updated_at,
+             t.date AT TIME ZONE 'America/Sao_Paulo' AS date,
+             ty.name as type_name, 
+             c.name as category_name
         FROM transactions t
         JOIN types ty ON t.type_id = ty.id
         JOIN categories c ON t.category_id = c.id
@@ -25,7 +43,16 @@ interface TransactionRepository : CrudRepository<Transaction, String> {
     fun findByDateBetweenWithTypeAndCategory(startDate: LocalDateTime, endDate: LocalDateTime): List<TransactionDTO>
 
     @Query("""
-        SELECT t.*, ty.name as type_name, c.name as category_name
+      SELECT t.id,
+             t.category_id,
+             t.amount,
+             t.type_id,
+             t.description,
+             t.created_at,
+             t.updated_at,
+             t.date AT TIME ZONE 'America/Sao_Paulo' AS date,
+             ty.name as type_name, 
+             c.name as category_name
         FROM transactions t
         JOIN types ty ON t.type_id = ty.id
         JOIN categories c ON t.category_id = c.id
@@ -36,7 +63,16 @@ interface TransactionRepository : CrudRepository<Transaction, String> {
     fun findLastTransactionsWithTypeAndCategory(limit: Int): List<TransactionDTO>
 
     @Query("""
-        SELECT t.*, ty.name as type_name, c.name as category_name
+      SELECT t.id,
+             t.category_id,
+             t.amount,
+             t.type_id,
+             t.description,
+             t.created_at,
+             t.updated_at,
+             t.date AT TIME ZONE 'America/Sao_Paulo' AS date,
+             ty.name as type_name, 
+             c.name as category_name
         FROM transactions t
         JOIN types ty ON t.type_id = ty.id
         JOIN categories c ON t.category_id = c.id
@@ -48,7 +84,16 @@ interface TransactionRepository : CrudRepository<Transaction, String> {
     fun findBiggestTransactionsWithTypeAndCategory(limit: Int): List<TransactionDTO>
 
     @Query("""
-        SELECT t.*, ty.name AS type_name, c.name AS category_name
+      SELECT t.id,
+             t.category_id,
+             t.amount,
+             t.type_id,
+             t.description,
+             t.created_at,
+             t.updated_at,
+             t.date AT TIME ZONE 'America/Sao_Paulo' AS date,
+             ty.name as type_name, 
+             c.name as category_name
         FROM transactions t
         JOIN types ty ON t.type_id = ty.id
         JOIN categories c ON t.category_id = c.id
