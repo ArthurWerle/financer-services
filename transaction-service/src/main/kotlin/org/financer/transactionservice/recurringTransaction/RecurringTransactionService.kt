@@ -20,7 +20,7 @@ class RecurringTransactionService(private val db: RecurringTransactionRepository
     fun findRecurringTransactionById(id: String): RecurringTransaction? = db.findByIdOrNull(id)
 
     @Caching(evict = [
-        CacheEvict(value = ["getAllTransactions"]),
+        CacheEvict(value = ["getAllTransactions"], allEntries = true),
         CacheEvict(value = ["getLatestCombinedTransactions"], allEntries = true),
         CacheEvict(value = ["getBiggestCombinedTransactions"], allEntries = true),
         CacheEvict(value = ["findTransactionById"], allEntries = true),
@@ -32,7 +32,7 @@ class RecurringTransactionService(private val db: RecurringTransactionRepository
     fun save(transaction: RecurringTransaction): RecurringTransaction = db.save(transaction)
 
     @Caching(evict = [
-        CacheEvict(value = ["getAllTransactions"]),
+        CacheEvict(value = ["getAllTransactions"], allEntries = true),
         CacheEvict(value = ["getLatestCombinedTransactions"], allEntries = true),
         CacheEvict(value = ["getBiggestCombinedTransactions"], allEntries = true),
         CacheEvict(value = ["findTransactionById"], allEntries = true),
@@ -44,7 +44,7 @@ class RecurringTransactionService(private val db: RecurringTransactionRepository
     fun delete(id: String): Unit = db.deleteById(id)
 
     @Caching(evict = [
-        CacheEvict(value = ["getAllTransactions"]),
+        CacheEvict(value = ["getAllTransactions"], allEntries = true),
         CacheEvict(value = ["getLatestCombinedTransactions"], allEntries = true),
         CacheEvict(value = ["getBiggestCombinedTransactions"], allEntries = true),
         CacheEvict(value = ["findTransactionById"], allEntries = true),

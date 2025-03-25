@@ -22,7 +22,7 @@ class TransactionService(private val db: TransactionRepository) {
     fun findTransactionById(id: String): Transaction? = db.findByIdOrNull(id)
 
     @Caching(evict = [
-        CacheEvict(value = ["getAllTransactions"]),
+        CacheEvict(value = ["getAllTransactions"], allEntries = true),
         CacheEvict(value = ["getLatestCombinedTransactions"], allEntries = true),
         CacheEvict(value = ["getBiggestCombinedTransactions"], allEntries = true),
         CacheEvict(value = ["findTransactionById"], allEntries = true),
@@ -34,7 +34,7 @@ class TransactionService(private val db: TransactionRepository) {
     fun save(transaction: Transaction): Transaction = db.save(transaction)
 
     @Caching(evict = [
-        CacheEvict(value = ["getAllTransactions"]),
+        CacheEvict(value = ["getAllTransactions"], allEntries = true),
         CacheEvict(value = ["getLatestCombinedTransactions"], allEntries = true),
         CacheEvict(value = ["getBiggestCombinedTransactions"], allEntries = true),
         CacheEvict(value = ["findTransactionById"], allEntries = true),
@@ -46,7 +46,7 @@ class TransactionService(private val db: TransactionRepository) {
     fun delete(id: String): Unit = db.deleteById(id)
 
     @Caching(evict = [
-        CacheEvict(value = ["getAllTransactions"]),
+        CacheEvict(value = ["getAllTransactions"], allEntries = true),
         CacheEvict(value = ["getLatestCombinedTransactions"], allEntries = true),
         CacheEvict(value = ["getBiggestCombinedTransactions"], allEntries = true),
         CacheEvict(value = ["findTransactionById"], allEntries = true),
