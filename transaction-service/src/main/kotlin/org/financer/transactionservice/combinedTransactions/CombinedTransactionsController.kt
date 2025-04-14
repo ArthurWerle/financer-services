@@ -2,6 +2,8 @@ package org.financer.transactionservice.combinedTransactions
 
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import java.math.BigDecimal
+import java.time.LocalDate
 
 @RestController
 @RequestMapping("/api/combined-transactions")
@@ -30,4 +32,20 @@ class CombinedTransactionsController(
 
     @GetMapping("/biggest/{limit}")
     fun getBiggest(@PathVariable limit: Int?) = ResponseEntity.ok(service.getBiggestCombinedTransactions(limit))
+
+    @GetMapping("/value/by-month")
+    fun getTotalValueOfCurrentMonth(): ResponseEntity<BigDecimal> {
+        return ResponseEntity.ok(service.getTotalValueOfCurrentMonth())
+    }
+
+    @GetMapping("/value/by-week")
+    fun getTotalValueOfCurrentWeek(): ResponseEntity<BigDecimal> {
+        return ResponseEntity.ok(service.getTotalValueOfCurrentWeek())
+    }
+
+    @GetMapping("/value/by-day")
+    fun getTotalValueOfCurrentDay(): ResponseEntity<BigDecimal> {
+        return ResponseEntity.ok(service.getTotalValueOfCurrentDay())
+    }
+    
 }

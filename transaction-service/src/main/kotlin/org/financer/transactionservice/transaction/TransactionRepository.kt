@@ -4,6 +4,7 @@ import org.financer.transactionservice.recurringTransaction.RecurringTransaction
 import org.slf4j.LoggerFactory
 import org.springframework.data.jdbc.repository.query.Query
 import org.springframework.data.repository.CrudRepository
+import java.math.BigDecimal
 import java.time.LocalDateTime
 
 interface TransactionRepository : CrudRepository<Transaction, String> {
@@ -140,4 +141,34 @@ interface TransactionRepository : CrudRepository<Transaction, String> {
 
     @Query("""...""")
     fun findBiggestTransactionsWithTypeAndCategoryInternal(limit: Int): List<TransactionDTO>
+
+    @Query("""
+        SELECT COALESCE(SUM(t.amount), 0) as total
+          FROM transactions t
+          JOIN types ty ON t.type_id = ty.id
+          JOIN categories c ON t.category_id = c.id
+        WHERE ty.name != 'income'
+          AND date_trunc('month', CURRENT_DATE) = date_trunc('month', t.date)
+     """)
+    fun findTotalByMonth(): BigDecimal
+
+    @Query("""
+        SELECT COALESCE(SUM(t.amount), 0) as total
+          FROM transactions t
+          JOIN types ty ON t.type_id = ty.id
+          JOIN categories c ON t.category_id = c.id
+         WHERE ty.name != 'income'
+           AND date_trunc('week', CURRENT_DATE) = date_trunc('week', t.date)
+     """)
+    fun findTotalByWeek(): BigDecimal
+
+    @Query("""
+        SELECT COALESCE(SUM(t.amount), 0) as total
+          FROM transactions t
+          JOIN types ty ON t.type_id = ty.id
+          JOIN categories c ON t.category_id = c.id
+        WHERE ty.name != 'income'
+          AND date_trunc('day', CURRENT_DATE) = date_trunc('day', t.date)
+     """)
+    fun findTotalByDay(): BigDecimal
 }

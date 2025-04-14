@@ -131,4 +131,22 @@ router.get("/monthly-expenses-by-category", async (req, res) => {
   }
 })
 
+router.get("/all-values", async (req, res) => {
+  try {
+    const service = new TransactionService()
+    const { data: valuesByDay } = await service.get<number>("/combined-transactions/value/by-day")
+    const { data: valuesByWeek } = await service.get<number>("/combined-transactions/value/by-week")
+    const { data: valuesByMonth } = await service.get<number>("/combined-transactions/value/by-month")
+
+    res.json({
+      day: valuesByDay,
+      week: valuesByWeek,
+      month: valuesByMonth,
+    })
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: "Failed to fetch data /all-values", cause: error })
+  }
+})
+
 export default router

@@ -3,6 +3,7 @@ package org.financer.transactionservice.recurringTransaction
 import org.slf4j.LoggerFactory
 import org.springframework.data.jdbc.repository.query.Query
 import org.springframework.data.repository.CrudRepository
+import java.math.BigDecimal
 import java.time.LocalDate
 
 interface RecurringTransactionRepository : CrudRepository<RecurringTransaction, String> {
@@ -221,7 +222,32 @@ interface RecurringTransactionRepository : CrudRepository<RecurringTransaction, 
         return results
     }
 
-    // Internal methods for actual query execution
     @Query("""...""")
     fun findTransactionsByCategoryAndDateBetweenInternal(currentMonth: Boolean?, categories: List<Int>?): List<RecurringTransactionDto>
+
+    @Query("""
+    SELECT COALESCE(SUM(t.amount), 0) as total
+      FROM recurring_transactions t
+     WHERE  (
+              CASE
+                WHEN t.end_date IS NULL THEN CURRENT_DATE >= t.start_date 
+                ELSE CURRENT_DATE BETWEEN t.start_date AND t.end_date
+              END
+     );
+    """)
+    fun findTotalValueByMonth(): BigDecimal
+
+    @Query("""
+    SELECT COALESCE(SUM(t.amount), 0) as total
+      FROM recurring_transactions t
+     WHERE date_trunc('week', CURRENT_DATE) = date_trunc('week', t.created_at);
+    """)
+    fun findTotalValueByWeek(): BigDecimal
+
+    @Query("""
+    SELECT COALESCE(SUM(t.amount), 0) as total
+      FROM recurring_transactions t
+     WHERE date_trunc('day', CURRENT_DATE) = date_trunc('day', t.created_at);
+    """)
+    fun findTotalValueByDay(): BigDecimal
 }

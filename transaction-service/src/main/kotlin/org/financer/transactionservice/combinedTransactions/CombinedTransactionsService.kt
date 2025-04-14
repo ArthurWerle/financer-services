@@ -7,6 +7,7 @@ import org.financer.transactionservice.transaction.TransactionService
 import org.slf4j.LoggerFactory
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
+import java.math.BigDecimal
 import java.time.LocalDateTime
 
 const val TRANSACTIONS_LIMIT = 5
@@ -99,7 +100,6 @@ class CombinedTransactionService(
             }
     }
 
-    // @Cacheable(value = ["getAllTransactions"], key = "#filters")
     fun getAllTransactions(filters: CombinedTransactionsController.TransactionFilters): List<CombinedTransaction> {
         logger.info("Fetching all combined transactions with filters: {}", filters)
 
@@ -119,5 +119,26 @@ class CombinedTransactionService(
                 logger.info("Returning {} combined transactions after merging and sorting", it.size)
                 logger.debug("Final combined transactions: {}", it)
             }
+    }
+
+    fun getTotalValueOfCurrentMonth(): BigDecimal {
+        val totalTransactionsValue = transactionService.findTotalByMonth()
+        val totalRecurringTransactionsValue = recurringTransactionService.findTotalValueByMonth()
+
+        return totalRecurringTransactionsValue + totalTransactionsValue
+    }
+
+    fun getTotalValueOfCurrentWeek(): BigDecimal {
+        val totalTransactionsValue = transactionService.findTotalByWeek()
+        val totalRecurringTransactionsValue = recurringTransactionService.findTotalValueByWeek()
+
+        return totalRecurringTransactionsValue + totalTransactionsValue
+    }
+
+    fun getTotalValueOfCurrentDay(): BigDecimal {
+        val totalTransactionsValue = transactionService.findTotalByDay()
+        val totalRecurringTransactionsValue = recurringTransactionService.findTotalValueByDay()
+
+        return totalRecurringTransactionsValue + totalTransactionsValue
     }
 }

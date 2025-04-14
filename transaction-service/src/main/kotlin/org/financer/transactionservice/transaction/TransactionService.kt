@@ -7,6 +7,7 @@ import org.springframework.cache.annotation.Cacheable
 import org.springframework.cache.annotation.Caching
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.YearMonth
@@ -101,5 +102,17 @@ class TransactionService(private val db: TransactionRepository) {
 
     fun findTransactionsByCategoryAndDateBetween(filters: CombinedTransactionsController.TransactionFilters): List<TransactionDTO> {
         return db.findTransactionsByCategoryAndDateBetween(filters.currentMonth, filters.categories)
+    }
+
+    fun findTotalByMonth(): BigDecimal {
+        return db.findTotalByMonth()
+    }
+
+    fun findTotalByWeek(): BigDecimal {
+        return db.findTotalByWeek()
+    }
+
+    fun findTotalByDay(): BigDecimal {
+        return db.findTotalByDay()
     }
 }
