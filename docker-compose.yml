@@ -22,24 +22,36 @@ services:
     image: alpine:latest
     restart: unless-stopped
     volumes:
-      - ./backup-postgres.sh:/backup.sh
-      - ./stack.env:/stack.env
+      - ./backup-postgres.sh:/usr/local/bin/backup.sh:ro
+      - ./stack.env:/stack.env:ro
       - /mnt/sda/backups/financer:/backups
       - /etc/localtime:/etc/localtime:ro
       - /home/arthur/.muttrc:/root/.muttrc:ro
     environment:
       TZ: "America/Sao_Paulo"
+      BACKUP_INTERVAL: ${BACKUP_INTERVAL:-604800}  # Default to weekly (in seconds)
     depends_on:
       postgres:
         condition: service_healthy
     entrypoint: |
       /bin/sh -c '
-      apk add --no-cache bash postgresql-client msmtp ca-certificates
-      chmod +x /backup.sh
-      bash /backup.sh  # Run backup immediately
+      apk add --no-cache bash postgresql-client mutt ca-certificates
+      chmod +x /usr/local/bin/backup.sh
+      
+      # Function to run backup
+      run_backup() {
+        echo "Starting backup at $(date)"
+        /usr/local/bin/backup.sh
+        echo "Backup completed at $(date)"
+      }
+      
+      # Run initial backup
+      run_backup
+      
+      # Main loop
       while true; do
-        sleep 604800  # Wait a week
-        bash /backup.sh  # Run backup after sleep
+        sleep ${BACKUP_INTERVAL:-604800}
+        run_backup
       done'
     networks:
       - database
@@ -65,7 +77,6 @@ services:
       interval: 5s
       timeout: 5s
       retries: 3
-
 
   redis: 
     image: "redis:latest" 
