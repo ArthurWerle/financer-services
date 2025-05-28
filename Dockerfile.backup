@@ -1,0 +1,24 @@
+FROM alpine:latest
+
+# Install required packages
+RUN apk add --no-cache \
+    bash \
+    postgresql-client \
+    mutt \
+    ca-certificates
+
+# Create backup script
+COPY backup-postgres.sh /usr/local/bin/backup.sh
+RUN chmod +x /usr/local/bin/backup.sh
+
+# Create entrypoint script
+RUN echo '#!/bin/sh' > /usr/local/bin/entrypoint.sh && \
+    echo 'while true; do' >> /usr/local/bin/entrypoint.sh && \
+    echo '  echo "Starting backup at $(date)"' >> /usr/local/bin/entrypoint.sh && \
+    echo '  /usr/local/bin/backup.sh' >> /usr/local/bin/entrypoint.sh && \
+    echo '  echo "Backup completed at $(date)"' >> /usr/local/bin/entrypoint.sh && \
+    echo '  sleep ${BACKUP_INTERVAL:-604800}' >> /usr/local/bin/entrypoint.sh && \
+    echo 'done' >> /usr/local/bin/entrypoint.sh && \
+    chmod +x /usr/local/bin/entrypoint.sh
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"] 

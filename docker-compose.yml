@@ -19,10 +19,11 @@ services:
       start_period: 30s 
     
   backup:
-    image: alpine:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.backup
     restart: unless-stopped
     volumes:
-      - ./backup-postgres.sh:/backup.sh:ro
       - ./stack.env:/stack.env:ro
       - /mnt/sda/backups/financer:/backups
       - /etc/localtime:/etc/localtime:ro
@@ -33,26 +34,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    entrypoint: |
-      /bin/sh -c '
-      apk add --no-cache bash postgresql-client mutt ca-certificates
-      chmod +x /backup.sh
-      
-      # Function to run backup
-      run_backup() {
-        echo "Starting backup at $(date)"
-        /backup.sh
-        echo "Backup completed at $(date)"
-      }
-      
-      # Run initial backup
-      run_backup
-      
-      # Main loop
-      while true; do
-        sleep ${BACKUP_INTERVAL:-604800}
-        run_backup
-      done'
     networks:
       - database
 
