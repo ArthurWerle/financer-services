@@ -8,8 +8,80 @@ RUN apk add --no-cache \
     ca-certificates
 
 # Create backup script
-COPY backup-postgres.sh /usr/local/bin/backup.sh
-RUN chmod +x /usr/local/bin/backup.sh
+RUN echo '#!/bin/bash' > /usr/local/bin/backup.sh && \
+    echo '# backup-postgres.sh' >> /usr/local/bin/backup.sh && \
+    echo '' >> /usr/local/bin/backup.sh && \
+    echo 'set -euo pipefail' >> /usr/local/bin/backup.sh && \
+    echo '' >> /usr/local/bin/backup.sh && \
+    echo '# Source environment variables' >> /usr/local/bin/backup.sh && \
+    echo 'if [ -f /stack.env ]; then' >> /usr/local/bin/backup.sh && \
+    echo '    set -a' >> /usr/local/bin/backup.sh && \
+    echo '    . /stack.env' >> /usr/local/bin/backup.sh && \
+    echo '    set +a' >> /usr/local/bin/backup.sh && \
+    echo 'fi' >> /usr/local/bin/backup.sh && \
+    echo '' >> /usr/local/bin/backup.sh && \
+    echo '# Configuration' >> /usr/local/bin/backup.sh && \
+    echo 'BACKUP_DIR="/backups"' >> /usr/local/bin/backup.sh && \
+    echo 'LOG_FILE="${BACKUP_DIR}/backup.log"' >> /usr/local/bin/backup.sh && \
+    echo 'RETENTION_DAYS=30' >> /usr/local/bin/backup.sh && \
+    echo 'TIMESTAMP=$(date +"%Y%m%d_%H%M%S")' >> /usr/local/bin/backup.sh && \
+    echo 'BACKUP_FILE="${BACKUP_DIR}/backup_${POSTGRES_DB}_${TIMESTAMP}.sql.gz"' >> /usr/local/bin/backup.sh && \
+    echo '' >> /usr/local/bin/backup.sh && \
+    echo '# Logging function' >> /usr/local/bin/backup.sh && \
+    echo 'log() {' >> /usr/local/bin/backup.sh && \
+    echo '    echo "[$(date "+%Y-%m-%d %H:%M:%S")] $1" | tee -a "$LOG_FILE"' >> /usr/local/bin/backup.sh && \
+    echo '}' >> /usr/local/bin/backup.sh && \
+    echo '' >> /usr/local/bin/backup.sh && \
+    echo '# Error handling' >> /usr/local/bin/backup.sh && \
+    echo 'handle_error() {' >> /usr/local/bin/backup.sh && \
+    echo '    log "ERROR: $1"' >> /usr/local/bin/backup.sh && \
+    echo '    echo "Database backup failed at $(date)"' >> /usr/local/bin/backup.sh && \
+    echo '    echo "Error: $1"' >> /usr/local/bin/backup.sh && \
+    echo '    echo "Please check the backup system and database container status." | mutt -s "Database Backup FAILED - ${POSTGRES_DB}" -- "$EMAIL_TO"' >> /usr/local/bin/backup.sh && \
+    echo '    exit 1' >> /usr/local/bin/backup.sh && \
+    echo '}' >> /usr/local/bin/backup.sh && \
+    echo '' >> /usr/local/bin/backup.sh && \
+    echo '# Skip in test environment' >> /usr/local/bin/backup.sh && \
+    echo 'if [ "$ENV" = "test" ]; then' >> /usr/local/bin/backup.sh && \
+    echo '    log "Skipping backup in test environment"' >> /usr/local/bin/backup.sh && \
+    echo '    exit 0' >> /usr/local/bin/backup.sh && \
+    echo 'fi' >> /usr/local/bin/backup.sh && \
+    echo '' >> /usr/local/bin/backup.sh && \
+    echo '# Ensure backup directory exists' >> /usr/local/bin/backup.sh && \
+    echo 'mkdir -p "$BACKUP_DIR" || handle_error "Failed to create backup directory"' >> /usr/local/bin/backup.sh && \
+    echo '' >> /usr/local/bin/backup.sh && \
+    echo '# Check if required environment variables are set' >> /usr/local/bin/backup.sh && \
+    echo 'for var in POSTGRES_DB POSTGRES_USER POSTGRES_PASSWORD EMAIL_TO; do' >> /usr/local/bin/backup.sh && \
+    echo '    if [ -z "${!var}" ]; then' >> /usr/local/bin/backup.sh && \
+    echo '        handle_error "Required environment variable $var is not set"' >> /usr/local/bin/backup.sh && \
+    echo '    fi' >> /usr/local/bin/backup.sh && \
+    echo 'done' >> /usr/local/bin/backup.sh && \
+    echo '' >> /usr/local/bin/backup.sh && \
+    echo '# Perform the backup' >> /usr/local/bin/backup.sh && \
+    echo 'log "Starting backup of ${POSTGRES_DB} database"' >> /usr/local/bin/backup.sh && \
+    echo '' >> /usr/local/bin/backup.sh && \
+    echo 'if PGPASSWORD="${POSTGRES_PASSWORD}" pg_dump -h postgres -U "${POSTGRES_USER}" "${POSTGRES_DB}" | gzip > "$BACKUP_FILE"; then' >> /usr/local/bin/backup.sh && \
+    echo '    # Calculate backup size' >> /usr/local/bin/backup.sh && \
+    echo '    BACKUP_SIZE=$(du -h "$BACKUP_FILE" | cut -f1)' >> /usr/local/bin/backup.sh && \
+    echo '    ' >> /usr/local/bin/backup.sh && \
+    echo '    log "Backup completed successfully: $BACKUP_FILE (Size: $BACKUP_SIZE)"' >> /usr/local/bin/backup.sh && \
+    echo '' >> /usr/local/bin/backup.sh && \
+    echo '    # Email notification' >> /usr/local/bin/backup.sh && \
+    echo '    echo "Database backup completed successfully at $(date)"' >> /usr/local/bin/backup.sh && \
+    echo '    echo "Backup file: $(basename "$BACKUP_FILE")"' >> /usr/local/bin/backup.sh && \
+    echo '    echo "Size: $BACKUP_SIZE"' >> /usr/local/bin/backup.sh && \
+    echo '    echo "Location: $BACKUP_DIR" | mutt -s "Database Backup Successful - ${POSTGRES_DB}" -a "$BACKUP_FILE" -- "$EMAIL_TO"' >> /usr/local/bin/backup.sh && \
+    echo '' >> /usr/local/bin/backup.sh && \
+    echo '    # Cleanup old backups' >> /usr/local/bin/backup.sh && \
+    echo '    log "Cleaning up backups older than $RETENTION_DAYS days"' >> /usr/local/bin/backup.sh && \
+    echo '    find "$BACKUP_DIR" -name "backup_${POSTGRES_DB}_*.sql.gz" -mtime +$RETENTION_DAYS -delete' >> /usr/local/bin/backup.sh && \
+    echo '' >> /usr/local/bin/backup.sh && \
+    echo '    # Log cleanup' >> /usr/local/bin/backup.sh && \
+    echo '    log "Cleanup completed"' >> /usr/local/bin/backup.sh && \
+    echo 'else' >> /usr/local/bin/backup.sh && \
+    echo '    handle_error "pg_dump command failed"' >> /usr/local/bin/backup.sh && \
+    echo 'fi' >> /usr/local/bin/backup.sh && \
+    chmod +x /usr/local/bin/backup.sh
 
 # Create entrypoint script
 RUN echo '#!/bin/sh' > /usr/local/bin/entrypoint.sh && \
