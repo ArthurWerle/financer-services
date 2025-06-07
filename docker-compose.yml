@@ -22,6 +22,7 @@ services:
     networks:
       - database
       - back-end
+      - logging_logs
     depends_on:
       postgres:
         condition: service_healthy
@@ -113,3 +114,5 @@ networks:
     driver: bridge
   back-end:
     driver: bridge
+  logging_logs:
+    external: true
