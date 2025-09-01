@@ -37,9 +37,10 @@ func AppRouter(db *gorm.DB) http.Handler {
 	router.HandleFunc("/api/type/{id}", handler.UpdateTypeByIdHandler).Methods("PUT")
 
 	corsMiddleware := handlers.CORS(
-		handlers.AllowedOrigins([]string{"http://localhost:3000", "http://192.168.0.7:3000"}),
-		handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}),
-		handlers.AllowedHeaders([]string{"Content-Type", "Authorization"}),
+		handlers.AllowedOrigins([]string{"*"}),
+		handlers.AllowedMethods([]string{"*"}),
+		handlers.AllowedHeaders([]string{"*"}),
+		handlers.AllowCredentials(),
 	)
 
 	return corsMiddleware(router)
