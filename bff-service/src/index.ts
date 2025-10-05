@@ -1,3 +1,4 @@
+import "./tracing"
 import morgan from "morgan"
 import express from "express"
 import dotenv from "dotenv"
