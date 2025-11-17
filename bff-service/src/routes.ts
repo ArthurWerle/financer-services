@@ -4,6 +4,7 @@ import { Transaction } from "./types/transaction"
 import { RecurringTransaction } from "./types/recurring-transaction"
 import { CategoryService } from "./services/CategoryService"
 import { Category } from "./types/category"
+import { TransactionV2Service } from "./services/TransactionV2Service"
 
 const router = Router()
 
@@ -146,6 +147,63 @@ router.get("/all-values", async (req, res) => {
   } catch (error) {
     console.error(error)
     res.status(500).json({ error: "Failed to fetch data /all-values", cause: error })
+  }
+})
+
+router.get('/v2/transactions', async (req, res) => {
+  try {
+    const service = new TransactionV2Service()
+    const response = await service.get('/v2/transactions')
+
+    res.status(response.status).json(response.data)
+  } catch (error: any) {
+    console.error(error)
+    res.status(error?.status || 500).json({
+      error: "Failed to call transactions v2",
+      cause: error?.response?.data ?? error,
+    })
+  }
+})
+
+router.post("/recurring-transactions", async (req, res) => {
+  try {
+    const transactionService = new TransactionService()
+    const response = await transactionService.post("/recurring-transactions", req.body)
+
+    res.status(response.status).json(response.data)
+  } catch (error: any) {
+    console.error(error)
+    res.status(error?.status || 500).json({
+      error: "Failed to proxy request to /recurring-transactions",
+      cause: error?.response?.data ?? error,
+    })
+  }
+})
+
+router.post("/transactions", async (req, res) => {
+  try {
+    const transactionService = new TransactionService()
+    const response = await transactionService.post("/transactions", req.body)
+
+    const transactionV2Service = new TransactionV2Service()
+    const parsedBody = transactionV2Service.parseBody(req.body)
+
+    void transactionV2Service.post("/transactions", parsedBody)
+      .then((responseFromV2) => {
+        if (responseFromV2.status < 300) console.log('[debug] post to v2/transactions was successful')
+        else console.log('[debug] post to v2/transactions has an error', responseFromV2.data)
+      })
+      .catch((v2Error: any) => {
+        console.error('[transactions] failed to post to v2/transactions', v2Error?.response?.data ?? v2Error)
+      })
+
+    res.status(response.status).json(response.data)
+  } catch (error: any) {
+    console.error(error)
+    res.status(error?.status || 500).json({
+      error: "Failed to proxy request to /transactions",
+      cause: error?.response?.data ?? error,
+    })
   }
 })
 
