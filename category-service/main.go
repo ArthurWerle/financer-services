@@ -16,8 +16,8 @@ func main() {
 
 	router := routes.AppRouter(db)
 
-	fmt.Println("Server is running on http://localhost:8085")
-	if err := http.ListenAndServe(":8085", router); err != nil {
+	fmt.Println("Server is running on http://localhost:8080")
+	if err := http.ListenAndServe(":8080", router); err != nil {
 		log.Fatalf("Server failed to start: %v", err)
 	}
 }
