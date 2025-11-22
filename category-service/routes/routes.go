@@ -40,7 +40,6 @@ func AppRouter(db *gorm.DB) http.Handler {
 		handlers.AllowedOrigins([]string{"*"}),
 		handlers.AllowedMethods([]string{"*"}),
 		handlers.AllowedHeaders([]string{"*"}),
-		handlers.AllowCredentials(),
 	)
 
 	return corsMiddleware(router)
