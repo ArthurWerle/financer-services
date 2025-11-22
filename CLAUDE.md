@@ -12,7 +12,7 @@ The system consists of three microservices:
 
 1. **category-service** (Go + Gorilla Mux + GORM)
    - Manages categories and transaction types
-   - Exposes REST API at port 8080
+   - Exposes REST API at port 8085
    - Uses PostgreSQL for persistence
    - Health check: `GET /api/healthcheck`
 
@@ -143,7 +143,7 @@ All services are instrumented with OpenTelemetry:
 
 - 5432: PostgreSQL
 - 6379: Redis
-- 8080: category-service
+- 8085: category-service
 - 8081: transaction-service (internal 8080)
 - 8082: bff-service (internal 3000)
 - 9090: Prometheus

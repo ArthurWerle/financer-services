@@ -31,14 +31,14 @@ services:
       context: ./category-service/
       dockerfile: ./${DOCKERFILE:-Dockerfile}
     ports:
-      - "8080:8080"
+      - "8085:8080"
     env_file:
       - stack.env
     environment:
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
       - OTEL_SERVICE_NAME=category-service
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/api/healthcheck"]
+      test: ["CMD", "curl", "-f", "http://localhost:8085/api/healthcheck"]
       interval: 5s
       timeout: 5s
       retries: 3
