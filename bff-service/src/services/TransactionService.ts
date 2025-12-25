@@ -21,21 +21,18 @@ export class TransactionService extends Service {
     }
   }
 
-  async getPriceComparisonHistory() {
-    const monthlyData: any = []
+  async getIncomeAndExpenseComparisonHistory() {
+    const monthlyData: { month: string, expense: number, income: number }[] = []
 
     for (let i = 0; i < 12; i++) {
       const month = new Date(new Date().setMonth(new Date().getMonth() - i)).toISOString().slice(0, 7)
-      const { totalExpenseValue } = await this.getTotalValuesByPeriod({ period: 'by-month', date: month })
-
-      const monthFromLastYear = new Date(new Date().setMonth(new Date().getMonth() - i - 12)).toISOString().slice(0, 7)
-      const { totalExpenseValue: lastYearTotalExpenseValue } = await this.getTotalValuesByPeriod({ period: 'by-month', date: monthFromLastYear })
+      const { totalExpenseValue, totalIncomeValue } = await this.getTotalValuesByPeriod({ period: 'by-month', date: month })
       
-      if (totalExpenseValue || lastYearTotalExpenseValue) {
+      if (totalExpenseValue || totalIncomeValue) {
         monthlyData.push({
           month: new Date(new Date().setMonth(new Date().getMonth() - i)).toLocaleString('default', { month: 'short' }),
-          currentYear: totalExpenseValue,
-          lastYear: lastYearTotalExpenseValue
+          expense: totalExpenseValue,
+          income: totalIncomeValue
         })
       }
     }

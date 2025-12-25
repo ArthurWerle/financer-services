@@ -78,7 +78,7 @@ router.get("/overview/by-week", async (req, res) => {
 router.get("/expense-comparsion-history", async (req, res) => {
   try {
     const service = new TransactionService()
-    const monthlyData = await service.getPriceComparisonHistory()
+    const monthlyData = await service.getIncomeAndExpenseComparisonHistory()
     
     res.json(monthlyData)
   } catch (error) {
