@@ -80,7 +80,7 @@ router.get("/expense-comparsion-history", async (req, res) => {
     const service = new TransactionService()
     const monthlyData = await service.getIncomeAndExpenseComparisonHistory()
     
-    res.json(monthlyData)
+    res.json(monthlyData.reverse())
   } catch (error) {
     console.error(error)
     res.status(500).json({ error: "Failed to fetch data /income-comparsion-chart", cause: error })
