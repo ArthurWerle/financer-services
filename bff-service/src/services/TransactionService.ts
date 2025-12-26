@@ -24,17 +24,27 @@ export class TransactionService extends Service {
   async getIncomeAndExpenseComparisonHistory() {
     const monthlyData: { month: string, expense: number, income: number }[] = []
 
-    for (let i = 0; i < 12; i++) {
-      const month = new Date(new Date().setMonth(new Date().getMonth() - i)).toISOString().slice(0, 7)
+    // Start from January 2025
+    const startDate = new Date(2025, 0, 1) 
+    const today = new Date()
+    const currentMonth = new Date(today.getFullYear(), today.getMonth(), 1)
+
+    let currentDate = new Date(startDate)
+    while (currentDate <= currentMonth) {
+      const month = currentDate.toISOString().slice(0, 7)
       const { totalExpenseValue, totalIncomeValue } = await this.getTotalValuesByPeriod({ period: 'by-month', date: month })
       
       if (totalExpenseValue || totalIncomeValue) {
+        const monthLabel = currentDate.toLocaleString('default', { month: 'short' })
+        const yearLabel = currentDate.getFullYear().toString().slice(-2)
         monthlyData.push({
-          month: new Date(new Date().setMonth(new Date().getMonth() - i)).toLocaleString('default', { month: 'short' }),
+          month: `${monthLabel} ${yearLabel}`,
           expense: totalExpenseValue,
           income: totalIncomeValue
         })
       }
+
+      currentDate.setMonth(currentDate.getMonth() + 1)
     }
 
     return monthlyData
