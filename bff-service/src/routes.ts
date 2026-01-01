@@ -87,19 +87,6 @@ router.get("/expense-comparsion-history", async (req, res) => {
   }
 })
 
-router.get("/all-transactions", async (req, res) => {
-  try {
-    const service = new TransactionService()
-    const transactions = await service.get<Transaction[]>("/transactions")
-    const recurringTransactions = await service.get<RecurringTransaction[]>("/recurring-transactions")
-
-    res.json([...transactions.data, ...recurringTransactions.data])
-  } catch (error) {
-    console.error(error)
-    res.status(500).json({ error: "Failed to fetch data /all-transactions", cause: error })
-  }
-})
-
 router.get("/monthly-expenses-by-category", async (req, res) => {
   try {
     const transactionService = new TransactionService()
