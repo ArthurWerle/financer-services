@@ -77,13 +77,13 @@ router.get("/overview/by-week", async (req, res) => {
 
 router.get("/expense-comparsion-history", async (req, res) => {
   try {
-    const service = new TransactionService()
+    const service = process.env.USE_TRANSACTIONS_V2 ? new TransactionV2Service() : new TransactionService()
     const monthlyData = await service.getIncomeAndExpenseComparisonHistory()
     
     res.json(monthlyData.reverse())
   } catch (error) {
     console.error(error)
-    res.status(500).json({ error: "Failed to fetch data /income-comparsion-chart", cause: error })
+    res.status(500).json({ error: "Failed to fetch data /expense-comparsion-history, process.env.USE_TRANSACTIONS_V2 is: " + process.env.USE_TRANSACTIONS_V2, cause: error })
   }
 })
 

@@ -13,7 +13,7 @@ export class Service {
     return axios.delete(this.baseURL + path, { params })
   }
 
-  async post(path: string, data: any): Promise<AxiosResponse> {
+  async post<T>(path: string, data: any): Promise<AxiosResponse<T>> {
     return axios.post(this.baseURL + path, data)
   }
 
