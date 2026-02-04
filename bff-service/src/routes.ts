@@ -9,38 +9,13 @@ import { TransactionV2Service } from "./services/TransactionV2Service"
 const router = Router()
 
 router.get("/overview/by-month", async (req, res) => {
-  try { 
-    const service = new TransactionService()
-
-    const currentMonth = new Date().toISOString().slice(0, 7)
-    const currentMonthTransactions = await service.get<Transaction[]>(`/transactions/by-month/${currentMonth}`)
-    const currentMonthRecurrentTransactions = await service.get<RecurringTransaction[]>(`/recurring-transactions/by-month/${currentMonth}`)
-    const currentMonthAllTransactions = [...currentMonthTransactions.data, ...currentMonthRecurrentTransactions.data]
-    const totalExpenseValue = currentMonthAllTransactions.filter(transaction => transaction.typeName === "expense").reduce((acc, transaction) => acc + transaction.amount, 0)
-    const totalIncomeValue = currentMonthAllTransactions.filter(transaction => transaction.typeName === "income").reduce((acc, transaction) => acc + transaction.amount, 0)
-
-    const lastMonth = new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString().slice(0, 7)
-    const lastMonthTransactions = await service.get<Transaction[]>(`/transactions/by-month/${lastMonth}`)
-    const lastMonthRecurrentTransactions = await service.get<RecurringTransaction[]>(`/recurring-transactions/by-month/${lastMonth}`)
-    const lastMonthAllTransactions = [...lastMonthTransactions.data, ...lastMonthRecurrentTransactions.data]
-    const lastMonthTotalExpenseValue = lastMonthAllTransactions.filter(transaction => transaction.typeName === "expense").reduce((acc, transaction) => acc + transaction.amount, 0)
-    const lastMonthTotalIncomeValue = lastMonthAllTransactions.filter(transaction => transaction.typeName === "income").reduce((acc, transaction) => acc + transaction.amount, 0)
-
-    res.json({
-      income: {
-        currentMonth: totalIncomeValue,
-        lastMonth: lastMonthTotalIncomeValue,
-        percentageVariation: ((totalIncomeValue - lastMonthTotalIncomeValue) / lastMonthTotalIncomeValue) * 100
-      },
-      expense: {
-        currentMonth: totalExpenseValue,
-        lastMonth: lastMonthTotalExpenseValue,
-        percentageVariation: ((totalExpenseValue - lastMonthTotalExpenseValue) / lastMonthTotalExpenseValue) * 100
-      },
-    })
+  try {
+    const service = process.env.USE_TRANSACTIONS_V2 ? new TransactionV2Service() : new TransactionService()
+    const response = await service.overviewByMonth()
+    res.json(response)
   } catch (error) {
     console.error(error)
-    res.status(500).json({ error: "Failed to fetch data /current-month", cause: error })
+    res.status(500).json({ error: "Failed to fetch data /overview/by-month", cause: error })
   }
 })
 
@@ -89,30 +64,19 @@ router.get("/expense-comparsion-history", async (req, res) => {
 
 router.get("/monthly-expenses-by-category", async (req, res) => {
   try {
-    const transactionService = new TransactionService()
-    const categoryService = new CategoryService()
-    const { data: categories } = await categoryService.get<Category[]>("/category")
+    let result: Record<string, number>
 
-    const currentMonth = new Date().toISOString().slice(0, 7)
-    const transactions = await transactionService.get<Transaction[]>(`/transactions/by-month/${currentMonth}`)
-    const recurringTransactions = await transactionService.get<RecurringTransaction[]>(`/recurring-transactions/by-month/${currentMonth}`)
-    const allTransactions = [...transactions.data, ...recurringTransactions.data].filter(transaction => transaction.typeName === "expense")
+    if (process.env.USE_TRANSACTIONS_V2) {
+      const service = new TransactionV2Service()
+      result = await service.getMonthlyExpensesByCategory()
+    } else {
+      const categoryService = new CategoryService()
+      const { data: categories } = await categoryService.get<Category[]>("/category")
+      const service = new TransactionService()
+      result = await service.getMonthlyExpensesByCategory(categories)
+    }
 
-    const totalValuesByCategory = allTransactions.reduce((acc, transaction) => {
-      const category = categories.find(category => category.ID === transaction.categoryId)
-      if (!category) return acc
-
-      const categoryName = category.Name
-      const categoryValue = acc[categoryName] || 0
-      return { ...acc, [categoryName]: categoryValue + transaction.amount }
-    }, {} as Record<string, number>)
-
-    const sortedEntries = Object.entries(totalValuesByCategory)
-      .sort(([, a], [, b]) => b - a)
-
-    const sortedObject = Object.fromEntries(sortedEntries)
-
-    res.json(sortedObject)
+    res.json(result)
   } catch (error) {
     console.error(error)
     res.status(500).json({ error: "Failed to fetch data /total-values-by-category", cause: error })

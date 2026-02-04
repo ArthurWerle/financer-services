@@ -1,5 +1,5 @@
 import { TransactionRequestParams } from "../types/transaction";
-import { TransactionV2, TransactionV2BaseResponse, TransactionV2RequestParams } from "../types/transactions-v2";
+import { TransactionV2, TransactionV2BaseResponse, TransactionV2RequestParams, CategoryV2 } from "../types/transactions-v2";
 import { Service } from "./Service";
 
 export class TransactionV2Service extends Service {
@@ -63,6 +63,79 @@ export class TransactionV2Service extends Service {
     }
 
     return monthlyData
+  }
+
+  async overviewByMonth() {
+    const today = new Date()
+    const currentYear = today.getFullYear()
+    const currentMonth = today.getMonth()
+
+    const currentMonthStart = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01`
+    const currentMonthLastDay = new Date(currentYear, currentMonth + 1, 0).getDate()
+    const currentMonthEnd = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(currentMonthLastDay).padStart(2, '0')}`
+
+    const { transactions: currentMonthTransactions } = await this.getTransactionsByDateRange(currentMonthStart, currentMonthEnd)
+    const { income: totalIncomeValue, expense: totalExpenseValue } = this.getTotalValueGroupedByType(currentMonthTransactions)
+
+    const lastMonthDate = new Date(currentYear, currentMonth - 1, 1)
+    const lastMonthYear = lastMonthDate.getFullYear()
+    const lastMonth = lastMonthDate.getMonth()
+
+    const lastMonthStart = `${lastMonthYear}-${String(lastMonth + 1).padStart(2, '0')}-01`
+    const lastMonthLastDay = new Date(lastMonthYear, lastMonth + 1, 0).getDate()
+    const lastMonthEnd = `${lastMonthYear}-${String(lastMonth + 1).padStart(2, '0')}-${String(lastMonthLastDay).padStart(2, '0')}`
+
+    const { transactions: lastMonthTransactions } = await this.getTransactionsByDateRange(lastMonthStart, lastMonthEnd)
+    const { income: lastMonthTotalIncomeValue, expense: lastMonthTotalExpenseValue } = this.getTotalValueGroupedByType(lastMonthTransactions)
+
+    return {
+      income: {
+        currentMonth: totalIncomeValue,
+        lastMonth: lastMonthTotalIncomeValue,
+        percentageVariation: ((totalIncomeValue - lastMonthTotalIncomeValue) / lastMonthTotalIncomeValue) * 100
+      },
+      expense: {
+        currentMonth: totalExpenseValue,
+        lastMonth: lastMonthTotalExpenseValue,
+        percentageVariation: ((totalExpenseValue - lastMonthTotalExpenseValue) / lastMonthTotalExpenseValue) * 100
+      },
+    }
+  }
+
+  async getCategories() {
+    const { data } = await this.get<CategoryV2[]>('/categories')
+    return data
+  }
+
+  async getMonthlyExpensesByCategory() {
+    const today = new Date()
+    const currentYear = today.getFullYear()
+    const currentMonth = today.getMonth()
+
+    const startDate = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01`
+    const lastDay = new Date(currentYear, currentMonth + 1, 0).getDate()
+    const endDate = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`
+
+    const [{ transactions }, categories] = await Promise.all([
+      this.getTransactionsByDateRange(startDate, endDate),
+      this.getCategories()
+    ])
+
+    const expenses = transactions.filter(t => t.type === 'expense')
+
+    const totalValuesByCategory = expenses.reduce((acc, transaction) => {
+      const category = categories.find(category => category.id === transaction.category_id)
+      if (!category) return acc
+
+      const categoryName = category.name
+      const categoryValue = acc[categoryName] || 0
+      return { ...acc, [categoryName]: categoryValue + transaction.amount }
+    }, {} as Record<string, number>)
+
+    const sortedEntries = Object.entries(totalValuesByCategory)
+      .sort(([, a], [, b]) => b - a)
+
+    return Object.fromEntries(sortedEntries)
   }
 
   parseBody(request: TransactionRequestParams) {

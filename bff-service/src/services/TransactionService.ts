@@ -1,3 +1,4 @@
+import { Category } from "../types/category";
 import { Period } from "../types/period";
 import { RecurringTransaction } from "../types/recurring-transaction";
 import { Transaction } from "../types/transaction";
@@ -48,5 +49,55 @@ export class TransactionService extends Service {
     }
 
     return monthlyData
+  }
+
+  async overviewByMonth() {
+    const currentMonth = new Date().toISOString().slice(0, 7)
+    const currentMonthTransactions = await this.get<Transaction[]>(`/transactions/by-month/${currentMonth}`)
+    const currentMonthRecurrentTransactions = await this.get<RecurringTransaction[]>(`/recurring-transactions/by-month/${currentMonth}`)
+    const currentMonthAllTransactions = [...currentMonthTransactions.data, ...currentMonthRecurrentTransactions.data]
+    const totalExpenseValue = currentMonthAllTransactions.filter(transaction => transaction.typeName === "expense").reduce((acc, transaction) => acc + transaction.amount, 0)
+    const totalIncomeValue = currentMonthAllTransactions.filter(transaction => transaction.typeName === "income").reduce((acc, transaction) => acc + transaction.amount, 0)
+
+    const lastMonth = new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString().slice(0, 7)
+    const lastMonthTransactions = await this.get<Transaction[]>(`/transactions/by-month/${lastMonth}`)
+    const lastMonthRecurrentTransactions = await this.get<RecurringTransaction[]>(`/recurring-transactions/by-month/${lastMonth}`)
+    const lastMonthAllTransactions = [...lastMonthTransactions.data, ...lastMonthRecurrentTransactions.data]
+    const lastMonthTotalExpenseValue = lastMonthAllTransactions.filter(transaction => transaction.typeName === "expense").reduce((acc, transaction) => acc + transaction.amount, 0)
+    const lastMonthTotalIncomeValue = lastMonthAllTransactions.filter(transaction => transaction.typeName === "income").reduce((acc, transaction) => acc + transaction.amount, 0)
+
+    return {
+      income: {
+        currentMonth: totalIncomeValue,
+        lastMonth: lastMonthTotalIncomeValue,
+        percentageVariation: ((totalIncomeValue - lastMonthTotalIncomeValue) / lastMonthTotalIncomeValue) * 100
+      },
+      expense: {
+        currentMonth: totalExpenseValue,
+        lastMonth: lastMonthTotalExpenseValue,
+        percentageVariation: ((totalExpenseValue - lastMonthTotalExpenseValue) / lastMonthTotalExpenseValue) * 100
+      },
+    }
+  }
+
+  async getMonthlyExpensesByCategory(categories: Category[]) {
+    const currentMonth = new Date().toISOString().slice(0, 7)
+    const transactions = await this.get<Transaction[]>(`/transactions/by-month/${currentMonth}`)
+    const recurringTransactions = await this.get<RecurringTransaction[]>(`/recurring-transactions/by-month/${currentMonth}`)
+    const allTransactions = [...transactions.data, ...recurringTransactions.data].filter(transaction => transaction.typeName === "expense")
+
+    const totalValuesByCategory = allTransactions.reduce((acc, transaction) => {
+      const category = categories.find(category => category.ID === transaction.categoryId)
+      if (!category) return acc
+
+      const categoryName = category.Name
+      const categoryValue = acc[categoryName] || 0
+      return { ...acc, [categoryName]: categoryValue + transaction.amount }
+    }, {} as Record<string, number>)
+
+    const sortedEntries = Object.entries(totalValuesByCategory)
+      .sort(([, a], [, b]) => b - a)
+
+    return Object.fromEntries(sortedEntries)
   }
 }

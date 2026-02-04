@@ -32,3 +32,12 @@ export type TransactionV2BaseResponse = {
     count: number
     transactions: TransactionV2[]
 }
+
+export interface CategoryV2 {
+    id: number
+    name: string
+    description: string
+    color: string
+    created_at: string
+    updated_at: string
+}
