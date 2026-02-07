@@ -10,7 +10,7 @@ const router = Router()
 
 router.get("/overview/by-month", async (req, res) => {
   try {
-    const service = process.env.USE_TRANSACTIONS_V2 ? new TransactionV2Service() : new TransactionService()
+    const service = process.env.USE_TRANSACTIONS_V2 === "true" ? new TransactionV2Service() : new TransactionService()
     const response = await service.overviewByMonth()
     res.json(response)
   } catch (error) {
@@ -52,7 +52,7 @@ router.get("/overview/by-week", async (req, res) => {
 
 router.get("/expense-comparsion-history", async (req, res) => {
   try {
-    const service = process.env.USE_TRANSACTIONS_V2 ? new TransactionV2Service() : new TransactionService()
+    const service = process.env.USE_TRANSACTIONS_V2 === "true" ? new TransactionV2Service() : new TransactionService()
     const monthlyData = await service.getIncomeAndExpenseComparisonHistory()
     
     res.json(monthlyData.reverse())
@@ -66,7 +66,7 @@ router.get("/monthly-expenses-by-category", async (req, res) => {
   try {
     let result: Record<string, number>
 
-    if (process.env.USE_TRANSACTIONS_V2) {
+    if (process.env.USE_TRANSACTIONS_V2 === "true") {
       const service = new TransactionV2Service()
       result = await service.getMonthlyExpensesByCategory()
     } else {
