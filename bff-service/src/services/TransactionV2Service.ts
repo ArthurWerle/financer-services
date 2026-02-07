@@ -4,7 +4,7 @@ import { Service } from "./Service";
 
 export class TransactionV2Service extends Service {
   constructor() {
-    super("http://transaction-service-v2:8080/api/v2")
+    super(process.env.TRANSACTION_V2_SERVICE_URL || "http://transaction-service-v2:8080/api/v2")
   }
 
   async getTransactionsByDateRange(startDate: string, endDate: string) {

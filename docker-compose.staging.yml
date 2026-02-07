@@ -1,0 +1,128 @@
+services:
+  postgres:
+    networks:
+      - database
+      - back-end
+    image: postgres:15
+    env_file:
+      - stack.staging.env
+    ports:
+      - "5433:5432"
+    volumes:
+      - staging_postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d mordor_staging || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 50s
+
+  category-service:
+    networks:
+      - database
+      - back-end
+    depends_on:
+      postgres:
+        condition: service_healthy
+    pull_policy: build
+    restart: unless-stopped
+    build:
+      context: ./category-service/
+      dockerfile: ./${DOCKERFILE:-Dockerfile}
+    ports:
+      - "9085:8080"
+    env_file:
+      - stack.staging.env
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - OTEL_SERVICE_NAME=category-service-staging
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/healthcheck"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+
+  redis:
+    image: "redis:latest"
+    restart: unless-stopped
+    networks:
+      - database
+      - back-end
+    ports:
+      - "6380:6379"
+    volumes:
+      - staging_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  transaction-service:
+    networks:
+      - database
+      - back-end
+    depends_on:
+      postgres:
+        condition: service_healthy
+      category-service:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    pull_policy: build
+    restart: unless-stopped
+    build:
+      context: ./transaction-service/
+      dockerfile: Dockerfile
+    ports:
+      - "9081:8080"
+    env_file:
+      - stack.staging.env
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - OTEL_SERVICE_NAME=transaction-service-staging
+      - SPRING_DATA_REDIS_HOST=redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  bff-service:
+    networks:
+      - back-end
+    depends_on:
+      postgres:
+        condition: service_healthy
+      category-service:
+        condition: service_healthy
+      transaction-service:
+        condition: service_healthy
+    pull_policy: build
+    restart: unless-stopped
+    build:
+      context: ./bff-service/
+      dockerfile: Dockerfile
+    ports:
+      - "9082:3000"
+    env_file:
+      - stack.staging.env
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - OTEL_SERVICE_NAME=bff-service-staging
+      - CATEGORY_SERVICE_URL=http://category-service:8080/api
+      - TRANSACTION_SERVICE_URL=http://transaction-service:8080/api
+      - TRANSACTION_V2_SERVICE_URL=http://transaction-service-v2:8080/api/v2
+
+volumes:
+  staging_postgres_data:
+  staging_redis_data:
+
+networks:
+  database:
+    driver: bridge
+  back-end:
+    driver: bridge

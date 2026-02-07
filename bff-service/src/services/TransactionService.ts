@@ -6,7 +6,7 @@ import { Service } from "./Service";
 
 export class TransactionService extends Service {
   constructor() {
-    super("http://transaction-service:8080/api")
+    super(process.env.TRANSACTION_SERVICE_URL || "http://transaction-service:8080/api")
   }
 
   async getTotalValuesByPeriod({ period, date }: { period: Period, date: string }) {
