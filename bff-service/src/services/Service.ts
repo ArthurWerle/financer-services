@@ -13,8 +13,8 @@ export class Service {
     return axios.delete(this.baseURL + path, { params })
   }
 
-  async post<T>(path: string, data: any): Promise<AxiosResponse<T>> {
-    return axios.post(this.baseURL + path, data)
+  async post<T>(path: string, data: any, params?: any): Promise<AxiosResponse<T>> {
+    return axios.post(this.baseURL + path, data, { params })
   }
 
   async put(path: string, data: any): Promise<AxiosResponse> {
