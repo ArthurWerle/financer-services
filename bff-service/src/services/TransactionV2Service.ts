@@ -8,7 +8,7 @@ export class TransactionV2Service extends Service {
   }
 
   async getTransactionsByDateRange(startDate: string, endDate: string) {
-    const { data } = await this.post<TransactionV2BaseResponse>('/transactions/by-date-range', {
+    const { data } = await this.get<TransactionV2BaseResponse>('/transactions/by-date-range', {
       start_date: startDate,
       end_date: endDate
     })
