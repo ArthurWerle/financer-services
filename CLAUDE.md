@@ -19,7 +19,7 @@ The system consists of three microservices:
 2. **transaction-service** (Kotlin + Spring Boot)
    - Handles transactions and recurring transactions
    - Exposes REST API at port 8080 (mapped to host 8081)
-   - Uses PostgreSQL for persistence and Redis for caching
+   - Uses PostgreSQL for persistence and in-memory caching
    - Health check: `GET /actuator/health`
    - Includes Spring Boot Actuator for monitoring
    - Caching enabled via `@EnableCaching`
@@ -33,7 +33,6 @@ The system consists of three microservices:
 ### Supporting Infrastructure
 
 - **PostgreSQL**: Shared database (port 5432)
-- **Redis**: Cache for transaction-service (port 6379)
 - **OpenTelemetry Collector**: Traces collection (ports 4317/4318)
 - **Prometheus**: Metrics collection (port 9090)
 - **Grafana**: Metrics visualization (port 3000)
@@ -142,7 +141,6 @@ All services are instrumented with OpenTelemetry:
 ## Port Reference
 
 - 5432: PostgreSQL
-- 6379: Redis
 - 8085: category-service
 - 8081: transaction-service (internal 8080)
 - 8082: bff-service (internal 3000)
