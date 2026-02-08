@@ -87,7 +87,7 @@ services:
     environment:
       - CATEGORY_SERVICE_URL=http://category-service:8080/api
       - TRANSACTION_SERVICE_URL=http://transaction-service:8080/api
-      - TRANSACTION_V2_SERVICE_URL=http://transaction-service-v2-staging:8080/api/v2
+      - TRANSACTION_V2_SERVICE_URL=http://transaction-service-v2:8080/api/v2
 
 volumes:
   staging_postgres_data:
