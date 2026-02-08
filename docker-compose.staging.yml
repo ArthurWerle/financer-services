@@ -5,7 +5,7 @@ services:
       - back-end
     image: postgres:15
     env_file:
-      - stack.staging.env
+      - stack.env
     ports:
       - "5433:5432"
     volumes:
@@ -33,7 +33,7 @@ services:
     ports:
       - "9085:8080"
     env_file:
-      - stack.staging.env
+      - stack.env
     environment:
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
       - OTEL_SERVICE_NAME=category-service-staging
@@ -79,7 +79,7 @@ services:
     ports:
       - "9081:8080"
     env_file:
-      - stack.staging.env
+      - stack.env
     environment:
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
       - OTEL_SERVICE_NAME=transaction-service-staging
@@ -109,7 +109,7 @@ services:
     ports:
       - "9082:3000"
     env_file:
-      - stack.staging.env
+      - stack.env
     environment:
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
       - OTEL_SERVICE_NAME=bff-service-staging
