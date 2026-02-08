@@ -33,7 +33,6 @@ import java.util.*
 @Import(TestConfig::class)
 @TestPropertySource(properties = [
     "spring.cache.type=none",
-    "spring.redis.enabled=false",
     "spring.datasource.url=jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1",
     "spring.datasource.driver-class-name=org.h2.Driver",
     "spring.datasource.username=sa",
