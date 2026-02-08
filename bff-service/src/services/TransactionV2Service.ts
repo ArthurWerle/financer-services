@@ -103,7 +103,7 @@ export class TransactionV2Service extends Service {
   }
 
   async getCategories() {
-    const { data } = await this.get<CategoryV2[]>('/categories')
+    const { data } = await this.get<{ categories: CategoryV2[], count: number }>('/categories')
     return data
   }
 
@@ -116,7 +116,7 @@ export class TransactionV2Service extends Service {
     const lastDay = new Date(currentYear, currentMonth + 1, 0).getDate()
     const endDate = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`
 
-    const [{ transactions }, categories] = await Promise.all([
+    const [{ transactions }, { categories }] = await Promise.all([
       this.getTransactionsByDateRange(startDate, endDate),
       this.getCategories()
     ])
