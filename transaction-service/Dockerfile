@@ -1,5 +1,7 @@
 FROM eclipse-temurin:17-jdk-jammy
 
+RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
 COPY gradlew ./gradlew
@@ -12,6 +14,6 @@ RUN ./gradlew build -x test --no-daemon
 
 RUN cp build/libs/*.jar app.jar
 
-EXPOSE 8081
+EXPOSE 8080
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
