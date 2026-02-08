@@ -34,9 +34,6 @@ services:
       - "8085:8080"
     env_file:
       - stack.env
-    environment:
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
-      - OTEL_SERVICE_NAME=category-service
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/api/healthcheck"]
       interval: 5s
@@ -61,9 +58,6 @@ services:
       - "8081:8080"
     env_file:
       - stack.env
-    environment:
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
-      - OTEL_SERVICE_NAME=transaction-service
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
       interval: 10s
@@ -90,73 +84,9 @@ services:
       - "8082:3000"
     env_file:
       - stack.env
-    environment:
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
-      - OTEL_SERVICE_NAME=bff-service
-
-  # otel-collector:
-  #   image: otel/opentelemetry-collector-contrib:latest
-  #   command: ["--config=/etc/otel-collector-config.yaml"]
-  #   volumes:
-  #     - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
-  #   ports:
-  #     - "4317:4317" # OTLP gRPC receiver
-  #     - "4318:4318" # OTLP HTTP receiver
-  #     - "8889:8889" # Prometheus metrics exposed by the collector
-  #   networks:
-  #     - back-end
-  #   restart: unless-stopped
-  #   depends_on:
-  #     - jaeger
-
-  # jaeger:
-  #   image: jaegertracing/all-in-one:latest
-  #   ports:
-  #     - "16686:16686" # Jaeger UI
-  #     - "14268:14268" # Jaeger collector HTTP
-  #     - "4317"        # OTLP gRPC (internal)
-  #     - "4318"        # OTLP HTTP (internal)
-  #   environment:
-  #     - COLLECTOR_OTLP_ENABLED=true
-  #   networks:
-  #     - back-end
-  #   restart: unless-stopped
-
-  # prometheus:
-  #   image: prom/prometheus:latest
-  #   volumes:
-  #     - ./prometheus.yml:/etc/prometheus/prometheus.yml
-  #     - prometheus_data:/prometheus
-  #   command:
-  #     - "--config.file=/etc/prometheus/prometheus.yml"
-  #     - "--storage.tsdb.path=/prometheus"
-  #     - "--web.console.libraries=/usr/share/prometheus/console_libraries"
-  #     - "--web.console.templates=/usr/share/prometheus/consoles"
-  #   ports:
-  #     - "9090:9090"
-  #   networks:
-  #     - back-end
-  #   restart: unless-stopped
-
-  # grafana:
-  #   image: grafana/grafana:latest
-  #   volumes:
-  #     - grafana_data:/var/lib/grafana
-  #   environment:
-  #     - GF_SECURITY_ADMIN_PASSWORD=admin
-  #     - GF_USERS_ALLOW_SIGN_UP=false
-  #   ports:
-  #     - "3000:3000"
-  #   networks:
-  #     - back-end
-  #   restart: unless-stopped
-  #   depends_on:
-  #     - prometheus
 
 volumes:
   postgres_data:
-  # prometheus_data:
-  # grafana_data:
 
 networks:
   database:
