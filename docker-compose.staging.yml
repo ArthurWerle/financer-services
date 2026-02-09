@@ -64,5 +64,4 @@ networks:
   database:
     driver: bridge
   back-end:
-    external: true
-    name: financer-services_back-end
+    driver: bridge
