@@ -5,6 +5,7 @@ import { RecurringTransaction } from "./types/recurring-transaction"
 import { CategoryService } from "./services/CategoryService"
 import { Category } from "./types/category"
 import { TransactionV2Service } from "./services/TransactionV2Service"
+import { AnalyticsService } from "./services/AnalyticsService"
 
 const router = Router()
 
@@ -104,7 +105,7 @@ router.get("/all-values", async (req, res) => {
 router.get('/v2/transactions', async (req, res) => {
   try {
     const service = new TransactionV2Service()
-    const response = await service.get('/v2/transactions')
+    const response = await service.get('/transactions', req.query)
 
     res.status(response.status).json(response.data)
   } catch (error: any) {
@@ -153,6 +154,164 @@ router.post("/transactions", async (req, res) => {
     console.error(error)
     res.status(error?.status || 500).json({
       error: "Failed to proxy request to /transactions",
+      cause: error?.response?.data ?? error,
+    })
+  }
+})
+
+// Category Service Proxy Routes
+router.get("/category", async (req, res) => {
+  try {
+    const categoryService = new CategoryService()
+    const response = await categoryService.get("/category")
+    res.status(response.status).json(response.data)
+  } catch (error: any) {
+    console.error(error)
+    res.status(error?.status || 500).json({
+      error: "Failed to proxy request to GET /category",
+      cause: error?.response?.data ?? error,
+    })
+  }
+})
+
+router.post("/category", async (req, res) => {
+  try {
+    const categoryService = new CategoryService()
+    const response = await categoryService.post("/category", req.body)
+    res.status(response.status).json(response.data)
+  } catch (error: any) {
+    console.error(error)
+    res.status(error?.status || 500).json({
+      error: "Failed to proxy request to POST /category",
+      cause: error?.response?.data ?? error,
+    })
+  }
+})
+
+router.get("/type", async (req, res) => {
+  try {
+    const categoryService = new CategoryService()
+    const response = await categoryService.get("/type")
+    res.status(response.status).json(response.data)
+  } catch (error: any) {
+    console.error(error)
+    res.status(error?.status || 500).json({
+      error: "Failed to proxy request to GET /type",
+      cause: error?.response?.data ?? error,
+    })
+  }
+})
+
+// Transaction Service V1 Proxy Routes
+router.get("/combined-transactions/all", async (req, res) => {
+  try {
+    const transactionService = new TransactionService()
+    const response = await transactionService.get("/combined-transactions/all", req.query)
+    res.status(response.status).json(response.data)
+  } catch (error: any) {
+    console.error(error)
+    res.status(error?.status || 500).json({
+      error: "Failed to proxy request to GET /combined-transactions/all",
+      cause: error?.response?.data ?? error,
+    })
+  }
+})
+
+router.get("/combined-transactions/latest/3", async (req, res) => {
+  try {
+    const transactionService = new TransactionService()
+    const response = await transactionService.get("/combined-transactions/latest/3")
+    res.status(response.status).json(response.data)
+  } catch (error: any) {
+    console.error(error)
+    res.status(error?.status || 500).json({
+      error: "Failed to proxy request to GET /combined-transactions/latest/3",
+      cause: error?.response?.data ?? error,
+    })
+  }
+})
+
+router.get("/combined-transactions/biggest/3", async (req, res) => {
+  try {
+    const transactionService = new TransactionService()
+    const response = await transactionService.get("/combined-transactions/biggest/3")
+    res.status(response.status).json(response.data)
+  } catch (error: any) {
+    console.error(error)
+    res.status(error?.status || 500).json({
+      error: "Failed to proxy request to GET /combined-transactions/biggest/3",
+      cause: error?.response?.data ?? error,
+    })
+  }
+})
+
+// Transaction Service V2 Proxy Routes
+router.post("/v2/transactions", async (req, res) => {
+  try {
+    const transactionV2Service = new TransactionV2Service()
+    const response = await transactionV2Service.post("/transactions", req.body)
+    res.status(response.status).json(response.data)
+  } catch (error: any) {
+    console.error(error)
+    res.status(error?.status || 500).json({
+      error: "Failed to proxy request to POST /v2/transactions",
+      cause: error?.response?.data ?? error,
+    })
+  }
+})
+
+router.get("/v2/transactions/latest", async (req, res) => {
+  try {
+    const transactionV2Service = new TransactionV2Service()
+    const response = await transactionV2Service.get("/transactions/latest", req.query)
+    res.status(response.status).json(response.data)
+  } catch (error: any) {
+    console.error(error)
+    res.status(error?.status || 500).json({
+      error: "Failed to proxy request to GET /v2/transactions/latest",
+      cause: error?.response?.data ?? error,
+    })
+  }
+})
+
+router.get("/v2/transactions/biggest", async (req, res) => {
+  try {
+    const transactionV2Service = new TransactionV2Service()
+    const response = await transactionV2Service.get("/transactions/biggest", req.query)
+    res.status(response.status).json(response.data)
+  } catch (error: any) {
+    console.error(error)
+    res.status(error?.status || 500).json({
+      error: "Failed to proxy request to GET /v2/transactions/biggest",
+      cause: error?.response?.data ?? error,
+    })
+  }
+})
+
+// Analytics Service Proxy Routes
+router.get("/categories/average", async (req, res) => {
+  try {
+    const analyticsService = new AnalyticsService()
+    const response = await analyticsService.get("/categories/average", req.query)
+    res.status(response.status).json(response.data)
+  } catch (error: any) {
+    console.error(error)
+    res.status(error?.status || 500).json({
+      error: "Failed to proxy request to GET /categories/average",
+      cause: error?.response?.data ?? error,
+    })
+  }
+})
+
+router.get("/types/average", async (req, res) => {
+  try {
+    const analyticsService = new AnalyticsService()
+    const response = await analyticsService.get("/types/average", req.query)
+    res.status(response.status).json(response.data)
+  } catch (error: any) {
+    console.error(error)
+    res.status(error?.status || 500).json({
+      error: "Failed to proxy request to GET /types/average",
       cause: error?.response?.data ?? error,
     })
   }
