@@ -50,6 +50,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "9082:3000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     env_file:
       - stack.env
     environment:
