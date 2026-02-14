@@ -295,10 +295,12 @@ router.get("/categories/average", async (req, res) => {
     const response = await analyticsService.get("/categories/average", req.query)
     res.status(response.status).json(response.data)
   } catch (error: any) {
-    console.error(error)
-    res.status(error?.status || 500).json({
+    const status = error?.response?.status || 502
+    const cause = error?.response?.data ?? error?.message ?? "Unknown error"
+    console.error("Failed to proxy request to GET /categories/average:", cause)
+    res.status(status).json({
       error: "Failed to proxy request to GET /categories/average",
-      cause: error?.response?.data ?? error,
+      cause,
     })
   }
 })
@@ -309,10 +311,12 @@ router.get("/types/average", async (req, res) => {
     const response = await analyticsService.get("/types/average", req.query)
     res.status(response.status).json(response.data)
   } catch (error: any) {
-    console.error(error)
-    res.status(error?.status || 500).json({
+    const status = error?.response?.status || 502
+    const cause = error?.response?.data ?? error?.message ?? "Unknown error"
+    console.error("Failed to proxy request to GET /types/average:", cause)
+    res.status(status).json({
       error: "Failed to proxy request to GET /types/average",
-      cause: error?.response?.data ?? error,
+      cause,
     })
   }
 })
