@@ -1,7 +1,5 @@
 import { Router } from "express"
 import { TransactionService } from "./services/TransactionService"
-import { Transaction } from "./types/transaction"
-import { RecurringTransaction } from "./types/recurring-transaction"
 import { CategoryService } from "./services/CategoryService"
 import { Category } from "./types/category"
 import { TransactionV2Service } from "./services/TransactionV2Service"
@@ -162,9 +160,15 @@ router.post("/transactions", async (req, res) => {
 // Category Service Proxy Routes
 router.get("/category", async (req, res) => {
   try {
-    const categoryService = new CategoryService()
-    const response = await categoryService.get("/category")
-    res.status(response.status).json(response.data)
+    if (process.env.USE_TRANSACTIONS_V2 === "true") {
+      const transactionV2Service = new TransactionV2Service()
+      const response = await transactionV2Service.get("/categories")
+      res.status(response.status).json(response.data)
+    } else {
+      const categoryService = new CategoryService()
+      const response = await categoryService.get("/category")
+      res.status(response.status).json(response.data)
+    }
   } catch (error: any) {
     console.error(error)
     res.status(error?.status || 500).json({
@@ -176,9 +180,15 @@ router.get("/category", async (req, res) => {
 
 router.post("/category", async (req, res) => {
   try {
-    const categoryService = new CategoryService()
-    const response = await categoryService.post("/category", req.body)
-    res.status(response.status).json(response.data)
+    if (process.env.USE_TRANSACTIONS_V2 === "true") {
+      const transactionV2Service = new TransactionV2Service()
+      const response = await transactionV2Service.post("/categories", req.body)
+      res.status(response.status).json(response.data)
+    } else {
+      const categoryService = new CategoryService()
+      const response = await categoryService.post("/category", req.body)
+      res.status(response.status).json(response.data)
+    }
   } catch (error: any) {
     console.error(error)
     res.status(error?.status || 500).json({

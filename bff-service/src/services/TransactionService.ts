@@ -52,6 +52,7 @@ export class TransactionService extends Service {
   }
 
   async overviewByMonth() {
+    console.info("Using TransactionService for overviewByMonth")
     const currentMonth = new Date().toISOString().slice(0, 7)
     const currentMonthTransactions = await this.get<Transaction[]>(`/transactions/by-month/${currentMonth}`)
     const currentMonthRecurrentTransactions = await this.get<RecurringTransaction[]>(`/recurring-transactions/by-month/${currentMonth}`)

@@ -66,6 +66,7 @@ export class TransactionV2Service extends Service {
   }
 
   async overviewByMonth() {
+    console.info("Using TransactionV2Service for overviewByMonth")
     const today = new Date()
     const currentYear = today.getFullYear()
     const currentMonth = today.getMonth()
