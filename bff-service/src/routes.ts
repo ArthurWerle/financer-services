@@ -132,6 +132,7 @@ router.post("/recurring-transactions", async (req, res) => {
 
 router.post("/transactions", async (req, res) => {
   try {
+    console.info("POST to /transactions")
     const transactionService = new TransactionService()
     const response = await transactionService.post("/transactions", req.body)
 
@@ -258,6 +259,7 @@ router.get("/combined-transactions/biggest/3", async (req, res) => {
 // Transaction Service V2 Proxy Routes
 router.post("/v2/transactions", async (req, res) => {
   try {
+    console.info("Using TransactionV2Service for POST /v2/transactions")
     const transactionV2Service = new TransactionV2Service()
     const response = await transactionV2Service.post("/transactions", req.body)
     res.status(response.status).json(response.data)
