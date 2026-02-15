@@ -311,7 +311,7 @@ router.get("/types/average", async (req, res) => {
 
     if (process.env.USE_TRANSACTIONS_V2 === "true") {
       const service = new TransactionV2Service()
-      result = await service.get("transactions/average/by-type", req.query)
+      result = await service.get("/transactions/average/by-type", req.query)
     } else {
       const analyticsService = new AnalyticsService()
       result = await analyticsService.get("/types/average", req.query)
