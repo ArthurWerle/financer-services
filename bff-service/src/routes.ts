@@ -307,9 +307,17 @@ router.get("/categories/average", async (req, res) => {
 
 router.get("/types/average", async (req, res) => {
   try {
-    const analyticsService = new AnalyticsService()
-    const response = await analyticsService.get("/types/average", req.query)
-    res.status(response.status).json(response.data)
+    let result: any
+
+    if (process.env.USE_TRANSACTIONS_V2 === "true") {
+      const service = new TransactionV2Service()
+      result = await service.get("/average/by-type", req.query)
+    } else {
+      const analyticsService = new AnalyticsService()
+      result = await analyticsService.get("/types/average", req.query)
+    }
+
+    res.status(result.status).json(result.data)
   } catch (error: any) {
     const status = error?.response?.status || 502
     const cause = error?.response?.data ?? error?.message ?? "Unknown error"
