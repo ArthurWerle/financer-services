@@ -1,4 +1,0 @@
-logging:
-  level:
-    org.financer.transactionservice: DEBUG
-    org.springframework.cache: DEBUG

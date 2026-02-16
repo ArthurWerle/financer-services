@@ -1,80 +1,7 @@
 services:
-  postgres:
-    networks:
-      - database
-      - back-end
-    image: postgres:15
-    env_file:
-      - stack.env
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U admin -d mordor || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 50s
-
-  category-service:
-    networks:
-      - database
-      - back-end
-    depends_on:
-      postgres:
-        condition: service_healthy
-    pull_policy: build
-    restart: unless-stopped
-    build:
-      context: ./category-service/
-      dockerfile: ./${DOCKERFILE:-Dockerfile}
-    ports:
-      - "8085:8080"
-    env_file:
-      - stack.env
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/api/healthcheck"]
-      interval: 5s
-      timeout: 5s
-      retries: 3
-
-  transaction-service:
-    networks:
-      - database
-      - back-end
-    depends_on:
-      postgres:
-        condition: service_healthy
-      category-service:
-        condition: service_healthy
-    pull_policy: build
-    restart: unless-stopped
-    build:
-      context: ./transaction-service/
-      dockerfile: Dockerfile
-    ports:
-      - "8081:8080"
-    env_file:
-      - stack.env
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 40s
-
   bff-service:
     networks:
       - back-end
-    depends_on:
-      postgres:
-        condition: service_healthy
-      category-service:
-        condition: service_healthy
-      transaction-service:
-        condition: service_healthy
     pull_policy: build
     restart: unless-stopped
     build:
@@ -85,11 +12,6 @@ services:
     env_file:
       - stack.env
 
-volumes:
-  postgres_data:
-
 networks:
-  database:
-    driver: bridge
   back-end:
     driver: bridge

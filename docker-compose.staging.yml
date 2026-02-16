@@ -1,17 +1,4 @@
 services:
-  postgres:
-    networks:
-      - database
-      - back-end
-    image: postgres:15
-    env_file:
-      - stack.env
-    ports:
-      - "5435:5432"
-    volumes:
-      - staging_postgres_data:/var/lib/postgresql/data
-    restart: unless-stopped
-
   bff-service:
     networks:
       - back-end
@@ -22,19 +9,11 @@ services:
       dockerfile: Dockerfile
     ports:
       - "9082:3000"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     env_file:
       - stack.env
     environment:
-      - TRANSACTION_SERVICE_URL=http://transaction-service:8080/api
       - TRANSACTION_V2_SERVICE_URL=http://transaction-service-v2:8080/api/v2
 
-volumes:
-  staging_postgres_data:
-
 networks:
-  database:
-    driver: bridge
   back-end:
     driver: bridge
