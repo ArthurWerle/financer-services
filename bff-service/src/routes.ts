@@ -230,9 +230,16 @@ router.get("/combined-transactions/all", async (req, res) => {
 
 router.get("/combined-transactions/latest/3", async (req, res) => {
   try {
-    const transactionService = new TransactionService()
-    const response = await transactionService.get("/combined-transactions/latest/3")
-    res.status(response.status).json(response.data)
+    if (process.env.USE_TRANSACTIONS_V2 === "true") {
+      const transactionV2Service = new TransactionV2Service()
+      const response = await transactionV2Service.post<any>("/transactions/latest", req.body)
+      res.status(response.status).json(response.data?.transactions || [])
+    } else {
+      const transactionService = new TransactionService()
+      const response = await transactionService.get("/combined-transactions/latest/3")
+      res.status(response.status).json(response.data)
+    }
+    
   } catch (error: any) {
     console.error(error)
     res.status(error?.status || 500).json({
@@ -244,9 +251,15 @@ router.get("/combined-transactions/latest/3", async (req, res) => {
 
 router.get("/combined-transactions/biggest/3", async (req, res) => {
   try {
-    const transactionService = new TransactionService()
-    const response = await transactionService.get("/combined-transactions/biggest/3")
-    res.status(response.status).json(response.data)
+    if (process.env.USE_TRANSACTIONS_V2 === "true") {
+      const transactionV2Service = new TransactionV2Service()
+      const response = await transactionV2Service.post<any>("/transactions/biggest", req.body)
+      res.status(response.status).json(response.data?.transactions || [])
+    } else {
+      const transactionService = new TransactionService()
+      const response = await transactionService.get("/combined-transactions/biggest/3")
+      res.status(response.status).json(response.data)
+    }
   } catch (error: any) {
     console.error(error)
     res.status(error?.status || 500).json({
