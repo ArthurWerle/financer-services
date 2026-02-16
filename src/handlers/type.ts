@@ -1,11 +1,11 @@
 import { Router } from "express";
-import { TransactionV2Service } from "../services/TransactionV2Service";
+import { TransactionService } from "../services/TransactionService";
 
 export function mountTypeRoutes(router: Router) {
     router.get("/types/average", async (req, res) => {
         try {
             let result: any
-            const service = new TransactionV2Service()
+            const service = new TransactionService()
             result = await service.get("/transactions/average/by-type", req.query)
 
             res.status(result.status).json(result.data)

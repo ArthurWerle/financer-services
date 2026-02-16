@@ -1,4 +1,4 @@
-export type TransactionV2RequestParams = {
+export type TransactionRequestParams = {
     amount: number
     type: 'income' | 'expense'
     is_recurring: boolean
@@ -11,7 +11,7 @@ export type TransactionV2RequestParams = {
     date: string
 }
 
-export interface TransactionV2 {
+export interface Transaction {
     id: number
     created_by_id?: number
     is_recurring?: boolean
@@ -28,12 +28,12 @@ export interface TransactionV2 {
     updated_at: string
   }
 
-export type TransactionV2BaseResponse = {
+export type TransactionBaseResponse = {
     count: number
-    transactions: TransactionV2[]
+    transactions: Transaction[]
 }
 
-export interface CategoryV2 {
+export interface Category {
     id: number
     name: string
     description: string

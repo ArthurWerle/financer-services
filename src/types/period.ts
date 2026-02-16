@@ -1,1 +1,0 @@
-export type Period = 'by-week' | 'by-month'

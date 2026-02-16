@@ -1,10 +1,9 @@
-import { TransactionRequestParams } from "../types/transaction";
-import { TransactionV2, TransactionV2BaseResponse, TransactionV2RequestParams, CategoryV2 } from "../types/transactions-v2";
+import { Transaction, TransactionBaseResponse, TransactionRequestParams, Category } from "../types/transactions";
 import { Service } from "./Service";
 
-export class TransactionV2Service extends Service {
+export class TransactionService extends Service {
   constructor() {
-    super(process.env.TRANSACTION_V2_SERVICE_URL || "http://transaction-service-v2:8080/api/v2")
+    super(process.env.TRANSACTION_SERVICE_URL || "http://transaction-service-v2:8080/api/v2")
   }
 
   async getTransactionsByDateRange(startDate: string, endDate: string) {
@@ -13,7 +12,7 @@ export class TransactionV2Service extends Service {
       endDate
     });
     
-    const { data } = await this.post<TransactionV2BaseResponse>('/transactions/by-date-range', {}, {
+    const { data } = await this.post<TransactionBaseResponse>('/transactions/by-date-range', {}, {
       start_date: startDate,
       end_date: endDate
     })
@@ -21,7 +20,7 @@ export class TransactionV2Service extends Service {
     return data
   }
 
-  getTotalValueGroupedByType(transactions: TransactionV2[]) {
+  getTotalValueGroupedByType(transactions: Transaction[]) {
     return transactions.reduce((acc, curr) => {
       if (curr.type === 'income') {
         acc.income += curr.amount
@@ -109,7 +108,7 @@ export class TransactionV2Service extends Service {
   }
 
   async getCategories() {
-    const { data } = await this.get<{ categories: CategoryV2[], count: number }>('/categories')
+    const { data } = await this.get<{ categories: Category[], count: number }>('/categories')
     return data
   }
 
@@ -142,19 +141,5 @@ export class TransactionV2Service extends Service {
       .sort(([, a], [, b]) => b - a)
 
     return Object.fromEntries(sortedEntries)
-  }
-
-  parseBody(request: TransactionRequestParams) {
-    const parsedParams: TransactionV2RequestParams = {
-        amount: request.amount,
-        type: request.typeId === 3 ? 'expense' : 'income',
-        is_recurring: false,
-        created_by_id: 1,
-        category_id: request.categoryId,
-        description: request.description,
-        date: request.date,
-    }
-
-    return parsedParams
   }
 }

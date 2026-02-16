@@ -1,12 +1,11 @@
 import { Router } from "express";
-import { TransactionV2Service } from "../services/TransactionV2Service";
-import { Category } from "../types/category";
+import { TransactionService } from "../services/TransactionService";
 
 export function mountCategoryRoutes(router: Router) {
     router.get("/monthly-expenses-by-category", async (req, res) => {
       try {
         let result: Record<string, number>
-        const service = new TransactionV2Service()
+        const service = new TransactionService()
         result = await service.getMonthlyExpensesByCategory()
     
         res.json(result)
@@ -17,11 +16,10 @@ export function mountCategoryRoutes(router: Router) {
     })
 
 
-    // Category Service Proxy Routes
     router.get("/category", async (req, res) => {
       try {
-        const transactionV2Service = new TransactionV2Service()
-        const response = await transactionV2Service.get("/categories")
+        const service = new TransactionService()
+        const response = await service.get("/categories")
         res.status(response.status).json(response.data)
       } catch (error: any) {
         console.error(error)
@@ -34,8 +32,8 @@ export function mountCategoryRoutes(router: Router) {
     
     router.post("/category", async (req, res) => {
       try {
-        const transactionV2Service = new TransactionV2Service()
-        const response = await transactionV2Service.post("/categories", req.body)
+        const service = new TransactionService()
+        const response = await service.post("/categories", req.body)
         res.status(response.status).json(response.data)
       } catch (error: any) {
         console.error(error)
