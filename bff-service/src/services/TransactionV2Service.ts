@@ -8,6 +8,11 @@ export class TransactionV2Service extends Service {
   }
 
   async getTransactionsByDateRange(startDate: string, endDate: string) {
+    console.info('TransactionV2Service -> getTransactionsByDateRange', {
+      startDate,
+      endDate
+    });
+    
     const { data } = await this.post<TransactionV2BaseResponse>('/transactions/by-date-range', {}, {
       start_date: startDate,
       end_date: endDate
