@@ -3,7 +3,7 @@ import { TransactionV2Service } from "../services/TransactionV2Service"
 import { TransactionService } from "../services/TransactionService"
 
 export function mountTransactionRoutes(router: Router) {
-    router.get('/v2/transactions', async (req, res) => {
+    router.get('/transactions', async (req, res) => {
       try {
         const service = new TransactionV2Service()
         const response = await service.get('/transactions', req.query)
@@ -20,27 +20,14 @@ export function mountTransactionRoutes(router: Router) {
 
     router.post("/transactions", async (req, res) => {
       try {
-        console.info("POST to /transactions")
-        const transactionService = new TransactionService()
-        const response = await transactionService.post("/transactions", req.body)
-    
+        console.info("Using TransactionV2Service for POST /v2/transactions")
         const transactionV2Service = new TransactionV2Service()
-        const parsedBody = transactionV2Service.parseBody(req.body)
-    
-        void transactionV2Service.post("/transactions", parsedBody)
-          .then((responseFromV2) => {
-            if (responseFromV2.status < 300) console.log('[debug] post to v2/transactions was successful')
-            else console.log('[debug] post to v2/transactions has an error', responseFromV2.data)
-          })
-          .catch((v2Error: any) => {
-            console.error('[transactions] failed to post to v2/transactions', v2Error?.response?.data ?? v2Error)
-          })
-    
+        const response = await transactionV2Service.post("/transactions", req.body)
         res.status(response.status).json(response.data)
       } catch (error: any) {
         console.error(error)
         res.status(error?.status || 500).json({
-          error: "Failed to proxy request to /transactions",
+          error: "Failed to proxy request to POST /v2/transactions",
           cause: error?.response?.data ?? error,
         })
       }
@@ -65,94 +52,7 @@ export function mountTransactionRoutes(router: Router) {
       }
     })
 
-    router.post("/recurring-transactions", async (req, res) => {
-      try {
-        const transactionService = new TransactionService()
-        const response = await transactionService.post("/recurring-transactions", req.body)
-    
-        res.status(response.status).json(response.data)
-      } catch (error: any) {
-        console.error(error)
-        res.status(error?.status || 500).json({
-          error: "Failed to proxy request to /recurring-transactions",
-          cause: error?.response?.data ?? error,
-        })
-      }
-    })
-
-    // Transaction Service V1 Proxy Routes
-    router.get("/combined-transactions/all", async (req, res) => {
-        try {
-            const transactionService = new TransactionService()
-            const response = await transactionService.get("/combined-transactions/all", req.query)
-            res.status(response.status).json(response.data)
-        } catch (error: any) {
-            console.error(error)
-            res.status(error?.status || 500).json({
-            error: "Failed to proxy request to GET /combined-transactions/all",
-            cause: error?.response?.data ?? error,
-            })
-        }
-    })
-
-    router.get("/combined-transactions/latest/3", async (req, res) => {
-        try {
-            if (process.env.USE_TRANSACTIONS_V2 === "true") {
-            const transactionV2Service = new TransactionV2Service()
-            const response = await transactionV2Service.get<any>("/transactions/latest", req.body)
-            res.status(response.status).json(response.data?.transactions || [])
-            } else {
-            const transactionService = new TransactionService()
-            const response = await transactionService.get("/combined-transactions/latest/3")
-            res.status(response.status).json(response.data)
-            }
-            
-        } catch (error: any) {
-            console.error(error)
-            res.status(error?.status || 500).json({
-            error: "Failed to proxy request to GET /combined-transactions/latest/3",
-            cause: error?.response?.data ?? error,
-            })
-        }
-    })
-
-    router.get("/combined-transactions/biggest/3", async (req, res) => {
-        try {
-            if (process.env.USE_TRANSACTIONS_V2 === "true") {
-            const transactionV2Service = new TransactionV2Service()
-            const response = await transactionV2Service.get<any>("/transactions/biggest", req.body)
-            res.status(response.status).json(response.data?.transactions || [])
-            } else {
-            const transactionService = new TransactionService()
-            const response = await transactionService.get("/combined-transactions/biggest/3")
-            res.status(response.status).json(response.data)
-            }
-        } catch (error: any) {
-            console.error(error)
-            res.status(error?.status || 500).json({
-            error: "Failed to proxy request to GET /combined-transactions/biggest/3",
-            cause: error?.response?.data ?? error,
-            })
-        }
-    })
-
-    // Transaction Service V2 Proxy Routes
-    router.post("/v2/transactions", async (req, res) => {
-        try {
-            console.info("Using TransactionV2Service for POST /v2/transactions")
-            const transactionV2Service = new TransactionV2Service()
-            const response = await transactionV2Service.post("/transactions", req.body)
-            res.status(response.status).json(response.data)
-        } catch (error: any) {
-            console.error(error)
-            res.status(error?.status || 500).json({
-            error: "Failed to proxy request to POST /v2/transactions",
-            cause: error?.response?.data ?? error,
-            })
-        }
-    })
-
-    router.get("/v2/transactions/latest", async (req, res) => {
+    router.get("/transactions/latest", async (req, res) => {
         try {
             const transactionV2Service = new TransactionV2Service()
             const response = await transactionV2Service.get("/transactions/latest", req.query)
@@ -166,7 +66,7 @@ export function mountTransactionRoutes(router: Router) {
         }
     })
 
-    router.get("/v2/transactions/biggest", async (req, res) => {
+    router.get("/transactions/biggest", async (req, res) => {
         try {
             const transactionV2Service = new TransactionV2Service()
             const response = await transactionV2Service.get("/transactions/biggest", req.query)
@@ -191,37 +91,6 @@ export function mountTransactionRoutes(router: Router) {
       }
     })
     
-    router.get("/overview/by-week", async (req, res) => {
-      try { 
-        const service = new TransactionService()
-    
-        const currentWeek = new Date(new Date().setDate(new Date().getDate() - new Date().getDay())).toISOString().slice(0, 10)
-        const { totalExpenseValue, totalIncomeValue } = await service.getTotalValuesByPeriod({ period: 'by-week', date: currentWeek })
-    
-        const lastWeek = new Date(new Date().setDate(new Date().getDate() - 7)).toISOString().slice(0, 10)
-        const { 
-          totalExpenseValue: lastWeekTotalExpenseValue, 
-          totalIncomeValue: lastWeekTotalIncomeValue 
-        } = await service.getTotalValuesByPeriod({ period: 'by-week', date: lastWeek })
-    
-        res.json({
-          income: {
-            currentWeek: totalIncomeValue,
-            lastWeek: lastWeekTotalIncomeValue,
-            percentageVariation: ((totalIncomeValue - lastWeekTotalIncomeValue) / lastWeekTotalIncomeValue) * 100
-          },
-          expense: {
-            currentWeek: totalExpenseValue,
-            lastWeek: lastWeekTotalExpenseValue,
-            percentageVariation: ((totalExpenseValue - lastWeekTotalExpenseValue) / lastWeekTotalExpenseValue) * 100
-          },
-        })
-      } catch (error) {
-        console.error(error)
-        res.status(500).json({ error: "Failed to fetch data /overview/by-week", cause: error })
-      }
-    })
-    
     router.get("/expense-comparsion-history", async (req, res) => {
       try {
         const service = process.env.USE_TRANSACTIONS_V2 === "true" ? new TransactionV2Service() : new TransactionService()
@@ -231,24 +100,6 @@ export function mountTransactionRoutes(router: Router) {
       } catch (error) {
         console.error(error)
         res.status(500).json({ error: "Failed to fetch data /expense-comparsion-history, process.env.USE_TRANSACTIONS_V2 is: " + process.env.USE_TRANSACTIONS_V2, cause: error })
-      }
-    })
-
-    router.get("/all-values", async (req, res) => {
-      try {
-        const service = new TransactionService()
-        const { data: valuesByDay } = await service.get<number>("/combined-transactions/value/by-day")
-        const { data: valuesByWeek } = await service.get<number>("/combined-transactions/value/by-week")
-        const { data: valuesByMonth } = await service.get<number>("/combined-transactions/value/by-month")
-    
-        res.json({
-          day: valuesByDay,
-          week: valuesByWeek,
-          month: valuesByMonth,
-        })
-      } catch (error) {
-        console.error(error)
-        res.status(500).json({ error: "Failed to fetch data /all-values", cause: error })
       }
     })
 }
