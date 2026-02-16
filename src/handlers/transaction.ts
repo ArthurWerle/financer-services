@@ -98,7 +98,7 @@ export function mountTransactionRoutes(router: Router) {
         res.json(monthlyData.reverse())
       } catch (error) {
         console.error(error)
-        res.status(500).json({ error: "Failed to fetch data /expense-comparsion-history, process.env.USE_TRANSACTIONS_V2 is: " + process.env.USE_TRANSACTIONS_V2, cause: error })
+        res.status(500).json({ error: "Failed to fetch data /expense-comparsion-history", cause: error })
       }
     })
 }
