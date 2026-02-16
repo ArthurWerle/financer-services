@@ -232,7 +232,7 @@ router.get("/combined-transactions/latest/3", async (req, res) => {
   try {
     if (process.env.USE_TRANSACTIONS_V2 === "true") {
       const transactionV2Service = new TransactionV2Service()
-      const response = await transactionV2Service.post<any>("/transactions/latest", req.body)
+      const response = await transactionV2Service.get<any>("/transactions/latest", req.body)
       res.status(response.status).json(response.data?.transactions || [])
     } else {
       const transactionService = new TransactionService()
@@ -253,7 +253,7 @@ router.get("/combined-transactions/biggest/3", async (req, res) => {
   try {
     if (process.env.USE_TRANSACTIONS_V2 === "true") {
       const transactionV2Service = new TransactionV2Service()
-      const response = await transactionV2Service.post<any>("/transactions/biggest", req.body)
+      const response = await transactionV2Service.get<any>("/transactions/biggest", req.body)
       res.status(response.status).json(response.data?.transactions || [])
     } else {
       const transactionService = new TransactionService()
