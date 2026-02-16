@@ -1,6 +1,5 @@
 import { Router } from "express"
 import { TransactionV2Service } from "../services/TransactionV2Service"
-import { TransactionService } from "../services/TransactionService"
 
 export function mountTransactionRoutes(router: Router) {
     router.get('/transactions', async (req, res) => {
@@ -82,7 +81,7 @@ export function mountTransactionRoutes(router: Router) {
 
     router.get("/overview/by-month", async (req, res) => {
       try {
-        const service = process.env.USE_TRANSACTIONS_V2 === "true" ? new TransactionV2Service() : new TransactionService()
+        const service =  new TransactionV2Service()
         const response = await service.overviewByMonth()
         res.json(response)
       } catch (error) {
@@ -93,7 +92,7 @@ export function mountTransactionRoutes(router: Router) {
     
     router.get("/expense-comparsion-history", async (req, res) => {
       try {
-        const service = process.env.USE_TRANSACTIONS_V2 === "true" ? new TransactionV2Service() : new TransactionService()
+        const service = new TransactionV2Service()
         const monthlyData = await service.getIncomeAndExpenseComparisonHistory()
         
         res.json(monthlyData.reverse())
