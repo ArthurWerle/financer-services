@@ -17,7 +17,7 @@ export function mountCategoryRoutes(router: Router) {
     }
   });
 
-  router.get('/category', async (req, res) => {
+  router.get('/categories', async (req, res) => {
     try {
       const service = new TransactionService();
       const response = await service.get('/categories');
@@ -25,13 +25,13 @@ export function mountCategoryRoutes(router: Router) {
     } catch (error: any) {
       console.error(error);
       res.status(error?.status || 500).json({
-        error: 'Failed to proxy request to GET /category',
+        error: 'Failed to proxy request to GET /categories',
         cause: error?.response?.data ?? error,
       });
     }
   });
 
-  router.post('/category', async (req, res) => {
+  router.post('/categories', async (req, res) => {
     try {
       const service = new TransactionService();
       const response = await service.post('/categories', req.body);
@@ -39,7 +39,41 @@ export function mountCategoryRoutes(router: Router) {
     } catch (error: any) {
       console.error(error);
       res.status(error?.status || 500).json({
-        error: 'Failed to proxy request to POST /category',
+        error: 'Failed to proxy request to POST /categories',
+        cause: error?.response?.data ?? error,
+      });
+    }
+  });
+
+  router.delete('/categories/:id', async (req, res) => {
+    try {
+      const service = new TransactionService();
+      const response = await service.delete(
+        `/categories/${req.params.id}`,
+        req.body
+      );
+      res.status(response.status).json(response.data);
+    } catch (error: any) {
+      console.error(error);
+      res.status(error?.status || 500).json({
+        error: 'Failed to proxy request to DELETE /categories/:id',
+        cause: error?.response?.data ?? error,
+      });
+    }
+  });
+
+  router.put('/categories/:id', async (req, res) => {
+    try {
+      const service = new TransactionService();
+      const response = await service.put(
+        `/categories/${req.params.id}`,
+        req.body
+      );
+      res.status(response.status).json(response.data);
+    } catch (error: any) {
+      console.error(error);
+      res.status(error?.status || 500).json({
+        error: 'Failed to proxy request to PUT /categories/:id',
         cause: error?.response?.data ?? error,
       });
     }
