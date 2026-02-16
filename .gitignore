@@ -1,5 +1,4 @@
-*/.env
-*.env
-*/dist
-*/node_modules
+.env
+dist
+node_modules
 .claude
