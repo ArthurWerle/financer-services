@@ -5,7 +5,7 @@ services:
     pull_policy: build
     restart: unless-stopped
     build:
-      context: ./bff-service/
+      context: .
       dockerfile: Dockerfile
     ports:
       - "9082:3000"
