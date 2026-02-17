@@ -83,7 +83,7 @@ export function mountTransactionRoutes(router: Router) {
   router.post('/transactions/:id/prepay', async (req, res) => {
     try {
       const service = new TransactionService();
-      const response = await service.delete(
+      const response = await service.post(
         `/transactions/${req.params.id}/prepay`,
         req.body
       );
@@ -92,7 +92,7 @@ export function mountTransactionRoutes(router: Router) {
     } catch (error: any) {
       console.error(error);
       res.status(error?.status || 500).json({
-        error: 'Failed to proxy request to /transactions/:id/prepay',
+        error: 'Failed to proxy request to POST /transactions/:id/prepay',
         cause: error?.response?.data ?? error,
       });
     }
