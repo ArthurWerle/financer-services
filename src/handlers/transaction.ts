@@ -31,6 +31,20 @@ export function mountTransactionRoutes(router: Router) {
     }
   });
 
+  router.get('/transactions/:id', async (req, res) => {
+    try {
+      const service = new TransactionService();
+      const response = await service.get(`/transactions/${req.params.id}`);
+      res.status(response.status).json(response.data);
+    } catch (error: any) {
+      console.error(error);
+      res.status(error?.status || 500).json({
+        error: 'Failed to proxy request to GET /transactions/:id',
+        cause: error?.response?.data ?? error,
+      });
+    }
+  });
+
   router.put('/transactions/:id', async (req, res) => {
     try {
       const service = new TransactionService();
@@ -42,7 +56,7 @@ export function mountTransactionRoutes(router: Router) {
     } catch (error: any) {
       console.error(error);
       res.status(error?.status || 500).json({
-        error: 'Failed to proxy request to POST /transactions',
+        error: 'Failed to proxy request to POST /transactions/:id',
         cause: error?.response?.data ?? error,
       });
     }
