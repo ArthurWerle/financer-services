@@ -2,7 +2,9 @@ import { Router } from 'express';
 import { TransactionService } from '../services/TransactionService';
 
 export function mountTransactionRoutes(router: Router) {
-  router.get('/transactions', async (req, res) => {
+  const transactionsRouter = Router();
+
+  transactionsRouter.get('/', async (req, res) => {
     try {
       const service = new TransactionService();
       const response = await service.get('/transactions', req.query);
@@ -17,7 +19,7 @@ export function mountTransactionRoutes(router: Router) {
     }
   });
 
-  router.post('/transactions', async (req, res) => {
+  transactionsRouter.post('/', async (req, res) => {
     try {
       const service = new TransactionService();
       const response = await service.post('/transactions', req.body);
@@ -31,7 +33,58 @@ export function mountTransactionRoutes(router: Router) {
     }
   });
 
-  router.get('/transactions/:id', async (req, res) => {
+  transactionsRouter.get('/average/by-category', async (req, res) => {
+    try {
+      const service = new TransactionService();
+      const result: any = await service.get(
+        '/transactions/average/by-category',
+        req.query
+      );
+
+      res.status(result.status).json(result.data);
+    } catch (error: any) {
+      const status = error?.response?.status || 502;
+      const cause = error?.response?.data ?? error?.message ?? 'Unknown error';
+      console.error(
+        'Failed to proxy request to GET /transactions/average/by-category:',
+        cause
+      );
+      res.status(status).json({
+        error: 'Failed to proxy request to GET /transactions/average/by-category',
+        cause,
+      });
+    }
+  });
+
+  transactionsRouter.get('/latest', async (req, res) => {
+    try {
+      const service = new TransactionService();
+      const response = await service.get('/transactions/latest', req.query);
+      res.status(response.status).json(response.data);
+    } catch (error: any) {
+      console.error(error);
+      res.status(error?.status || 500).json({
+        error: 'Failed to proxy request to GET /transactions/latest',
+        cause: error?.response?.data ?? error,
+      });
+    }
+  });
+
+  transactionsRouter.get('/biggest', async (req, res) => {
+    try {
+      const service = new TransactionService();
+      const response = await service.get('/transactions/biggest', req.query);
+      res.status(response.status).json(response.data);
+    } catch (error: any) {
+      console.error(error);
+      res.status(error?.status || 500).json({
+        error: 'Failed to proxy request to GET /transactions/biggest',
+        cause: error?.response?.data ?? error,
+      });
+    }
+  });
+
+  transactionsRouter.get('/:id', async (req, res) => {
     try {
       const service = new TransactionService();
       const response = await service.get(`/transactions/${req.params.id}`);
@@ -45,7 +98,7 @@ export function mountTransactionRoutes(router: Router) {
     }
   });
 
-  router.put('/transactions/:id', async (req, res) => {
+  transactionsRouter.put('/:id', async (req, res) => {
     try {
       const service = new TransactionService();
       const response = await service.put(
@@ -62,7 +115,7 @@ export function mountTransactionRoutes(router: Router) {
     }
   });
 
-  router.delete('/transactions/:id', async (req, res) => {
+  transactionsRouter.delete('/:id', async (req, res) => {
     try {
       const service = new TransactionService();
       const response = await service.delete(
@@ -80,7 +133,7 @@ export function mountTransactionRoutes(router: Router) {
     }
   });
 
-  router.post('/transactions/:id/prepay', async (req, res) => {
+  transactionsRouter.post('/:id/prepay', async (req, res) => {
     try {
       const service = new TransactionService();
       const response = await service.post(
@@ -98,33 +151,7 @@ export function mountTransactionRoutes(router: Router) {
     }
   });
 
-  router.get('/transactions/latest', async (req, res) => {
-    try {
-      const service = new TransactionService();
-      const response = await service.get('/transactions/latest', req.query);
-      res.status(response.status).json(response.data);
-    } catch (error: any) {
-      console.error(error);
-      res.status(error?.status || 500).json({
-        error: 'Failed to proxy request to GET /transactions/latest',
-        cause: error?.response?.data ?? error,
-      });
-    }
-  });
-
-  router.get('/transactions/biggest', async (req, res) => {
-    try {
-      const service = new TransactionService();
-      const response = await service.get('/transactions/biggest', req.query);
-      res.status(response.status).json(response.data);
-    } catch (error: any) {
-      console.error(error);
-      res.status(error?.status || 500).json({
-        error: 'Failed to proxy request to GET /transactions/biggest',
-        cause: error?.response?.data ?? error,
-      });
-    }
-  });
+  router.use('/transactions', transactionsRouter);
 
   router.get('/overview/by-month', async (req, res) => {
     try {
