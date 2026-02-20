@@ -24,4 +24,8 @@ export class Service {
   async put(path: string, data: any): Promise<AxiosResponse> {
     return axios.put(this.baseURL + path, data);
   }
+
+  async patch(path: string, data: any): Promise<AxiosResponse> {
+    return axios.patch(this.baseURL + path, data);
+  }
 }

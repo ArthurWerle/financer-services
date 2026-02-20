@@ -84,6 +84,24 @@ export function mountTransactionRoutes(router: Router) {
     }
   });
 
+  transactionsRouter.patch('/:id/end', async (req, res) => {
+    try {
+      const service = new TransactionService();
+      const response = await service.patch(
+        `/transactions/${req.params.id}/end`,
+        req.body
+      );
+
+      res.status(response.status).json(response.data);
+    } catch (error: any) {
+      console.error(error);
+      res.status(error?.response?.status || 500).json({
+        error: 'Failed to proxy request to PATCH /transactions/:id/end',
+        cause: error?.response?.data ?? error,
+      });
+    }
+  });
+
   transactionsRouter.get('/:id', async (req, res) => {
     try {
       const service = new TransactionService();
