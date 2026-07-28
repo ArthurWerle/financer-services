@@ -125,6 +125,7 @@ export function mountAiRoutes(router: Router) {
       const service = new AiService();
       const response = await service.get('/chats', {
         userId: String(req.user!.id),
+        origin: req.query.origin,
         limit: req.query.limit,
         offset: req.query.offset,
       });

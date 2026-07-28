@@ -222,7 +222,7 @@ describe('ai handlers', () => {
   });
 
   describe('GET /chats', () => {
-    it('always scopes the list to the session user', async () => {
+    it('always scopes the list to the session user and forwards the origin', async () => {
       mockedGet.mockResolvedValue({
         status: 200,
         data: { success: true, data: [{ id: 'chat-1' }] },
@@ -230,15 +230,18 @@ describe('ai handlers', () => {
 
       const list = findHandler(router, 'get', '/chats');
       const req: any = {
-        query: { limit: '10', offset: '0', userId: '999' },
+        query: { limit: '10', offset: '0', userId: '999', origin: 'financer' },
         user: { id: 3 },
       };
       const res = buildRes();
 
       await list(req, res);
 
+      // userId always comes from the session (never the query), and origin is
+      // forwarded so ai-internal only returns this service's chats.
       expect(mockedGet).toHaveBeenCalledWith('/chats', {
         userId: '3',
+        origin: 'financer',
         limit: '10',
         offset: '0',
       });
