@@ -11,6 +11,11 @@ services:
       - '8082:3000'
     env_file:
       - stack.env
+    labels:
+      prometheus.io/scrape: "true"
+      prometheus.io/hostport: "8082"
+      prometheus.io/path: "/metrics"
+      environment: "production"
 
 networks:
   back-end:
