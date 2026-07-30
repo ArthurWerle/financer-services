@@ -5,6 +5,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import routes from './routes';
 import { errorHandler } from './errorMiddleware';
+import { metricsMiddleware, metricsHandler } from './metrics';
 
 dotenv.config();
 
@@ -23,6 +24,13 @@ app.use(morgan('combined'));
 // 100kb JSON limit — allow larger bodies so /ai/scan uploads don't 413.
 app.use(express.json({ limit: '15mb' }));
 app.use(cookieParser());
+
+// Observability: record request metrics for all routes and expose /metrics.
+// Kept at the app root (outside /api/bff) so the scrape endpoint is not behind
+// the session auth middleware. LAN-only, so no auth is needed on it.
+app.use(metricsMiddleware);
+app.get('/metrics', metricsHandler);
+
 app.use('/api/bff', routes);
 
 // Express error middleware must be registered after the routes it covers.

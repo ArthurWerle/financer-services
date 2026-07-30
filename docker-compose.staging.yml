@@ -14,6 +14,11 @@ services:
     environment:
       - TRANSACTION_V2_SERVICE_URL=http://transaction-service-v2:8080/api/v2
       - AI_INTERNAL_URL=http://ai-internal-staging:3005
+    labels:
+      prometheus.io/scrape: "true"
+      prometheus.io/hostport: "9082"
+      prometheus.io/path: "/metrics"
+      environment: "staging"
 
 networks:
   back-end:
