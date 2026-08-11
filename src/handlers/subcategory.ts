@@ -2,6 +2,34 @@ import { Router } from 'express';
 import { TransactionService } from '../services/TransactionService';
 
 export function mountSubcategoryRoutes(router: Router) {
+  router.get('/monthly-expenses-by-subcategory', async (req, res) => {
+    try {
+      const service = new TransactionService();
+      const response = await service.get<{
+        subcategories: { subcategory_name: string; total: number }[];
+      }>('/transactions/reports/monthly-expenses-by-subcategory', {
+        month: req.query.month,
+        year: req.query.year,
+      });
+
+      // Adapt the ordered array to the Record shape the frontend consumes;
+      // JS objects preserve insertion order, so the chart keeps its sorting.
+      res
+        .status(response.status)
+        .json(
+          Object.fromEntries(
+            response.data.subcategories.map((s) => [s.subcategory_name, s.total])
+          )
+        );
+    } catch (error: any) {
+      console.error(error);
+      res.status(error?.response?.status || 500).json({
+        error: 'Failed to fetch data /monthly-expenses-by-subcategory',
+        cause: error?.response?.data ?? error,
+      });
+    }
+  });
+
   router.get('/subcategories', async (req, res) => {
     try {
       const service = new TransactionService();
