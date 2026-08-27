@@ -8,6 +8,7 @@ const mockedPost = AiService.prototype.post as jest.Mock;
 const mockedGet = AiService.prototype.get as jest.Mock;
 const mockedPatch = AiService.prototype.patch as jest.Mock;
 const mockedDelete = AiService.prototype.delete as jest.Mock;
+const mockedPostStream = AiService.prototype.postStream as jest.Mock;
 
 // Recursively finds a mounted route handler, descending into nested routers
 // (the AI routes live on a sub-router mounted at /ai).
@@ -64,6 +65,7 @@ describe('ai handlers', () => {
     mockedGet.mockReset();
     mockedPatch.mockReset();
     mockedDelete.mockReset();
+    mockedPostStream.mockReset();
   });
 
   it('scan forwards messages plus the authed user id and passes the reply through', async () => {
@@ -218,6 +220,124 @@ describe('ai handlers', () => {
       expect(mockedPost).not.toHaveBeenCalled();
       expect(res.statusCode).toBe(404);
       expect(res.body).toEqual({ success: false, error: 'Chat not found' });
+    });
+  });
+
+  describe('POST /ask/stream', () => {
+    // A minimal readable-stream stand-in so we can assert the handler wires the
+    // upstream SSE stream through to the client response.
+    const fakeStream = () => ({
+      pipe: jest.fn(),
+      on: jest.fn(),
+      destroy: jest.fn(),
+    });
+
+    // buildRes() only models status/json; the stream route also sets headers,
+    // registers a close listener and pipes, so extend it here.
+    const buildStreamRes = () => {
+      const res: any = buildRes();
+      res.setHeader = jest.fn();
+      res.flushHeaders = jest.fn();
+      res.on = jest.fn();
+      res.end = jest.fn();
+      return res;
+    };
+
+    it('pipes the upstream SSE stream through with the forwarded content-type', async () => {
+      const data = fakeStream();
+      mockedPostStream.mockResolvedValue({
+        status: 200,
+        headers: { 'content-type': 'text/event-stream; charset=utf-8' },
+        data,
+      });
+
+      const stream = findHandler(router, 'post', '/ask/stream');
+      const req: any = {
+        body: { messages: [{ type: 'text', content: 'stream please' }] },
+        user: { id: 3 },
+      };
+      const res = buildStreamRes();
+
+      await stream(req, res);
+
+      // No chatId, so no ownership lookup; user id is stamped from the session.
+      expect(mockedGet).not.toHaveBeenCalled();
+      expect(mockedPostStream).toHaveBeenCalledWith('/ask/stream', {
+        messages: [{ type: 'text', content: 'stream please' }],
+        userId: '3',
+      });
+      expect(res.statusCode).toBe(200);
+      expect(res.setHeader).toHaveBeenCalledWith(
+        'Content-Type',
+        'text/event-stream; charset=utf-8'
+      );
+      expect(data.pipe).toHaveBeenCalledWith(res);
+    });
+
+    it('verifies chat ownership before opening the stream', async () => {
+      mockedGet.mockResolvedValue(ownedChatPayload('3'));
+      const data = fakeStream();
+      mockedPostStream.mockResolvedValue({
+        status: 200,
+        headers: { 'content-type': 'text/event-stream' },
+        data,
+      });
+
+      const stream = findHandler(router, 'post', '/ask/stream');
+      const req: any = {
+        body: {
+          messages: [{ type: 'text', content: 'more?' }],
+          chatId: 'chat-1',
+        },
+        user: { id: 3 },
+      };
+      const res = buildStreamRes();
+
+      await stream(req, res);
+
+      expect(mockedGet).toHaveBeenCalledWith('/chats/chat-1');
+      expect(mockedPostStream).toHaveBeenCalledWith('/ask/stream', {
+        messages: [{ type: 'text', content: 'more?' }],
+        chatId: 'chat-1',
+        userId: '3',
+      });
+      expect(data.pipe).toHaveBeenCalledWith(res);
+    });
+
+    it('404s without opening the stream when the chat belongs to someone else', async () => {
+      mockedGet.mockResolvedValue(ownedChatPayload('999'));
+
+      const stream = findHandler(router, 'post', '/ask/stream');
+      const req: any = {
+        body: {
+          messages: [{ type: 'text', content: 'more?' }],
+          chatId: 'chat-1',
+        },
+        user: { id: 3 },
+      };
+      const res = buildStreamRes();
+
+      await stream(req, res);
+
+      expect(mockedPostStream).not.toHaveBeenCalled();
+      expect(res.statusCode).toBe(404);
+      expect(res.body).toEqual({ success: false, error: 'Chat not found' });
+    });
+
+    it('wraps a transport failure (no response) as 502', async () => {
+      mockedPostStream.mockRejectedValue(new Error('ECONNREFUSED'));
+
+      const stream = findHandler(router, 'post', '/ask/stream');
+      const req: any = {
+        body: { messages: [{ type: 'text', content: 'hi' }] },
+        user: { id: 3 },
+      };
+      const res = buildStreamRes();
+
+      await stream(req, res);
+
+      expect(res.statusCode).toBe(502);
+      expect(res.body.error).toBe('Failed to proxy request to POST /ai/ask/stream');
     });
   });
 

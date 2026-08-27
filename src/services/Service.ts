@@ -1,8 +1,26 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import type { Readable } from 'stream';
 
 export class Service {
   constructor(private readonly baseURL: string) {
     this.baseURL = baseURL;
+  }
+
+  // POST that returns the raw upstream response as a Node stream so a route can
+  // pipe it straight through to the client (used to proxy Server-Sent Events).
+  // validateStatus is disabled so a non-2xx upstream (e.g. a 404 JSON body sent
+  // before any SSE frame) resolves instead of throwing, letting the caller
+  // forward the real status and body.
+  async postStream(
+    path: string,
+    data: any,
+    config?: AxiosRequestConfig
+  ): Promise<AxiosResponse<Readable>> {
+    return axios.post(this.baseURL + path, data, {
+      responseType: 'stream',
+      validateStatus: () => true,
+      ...config,
+    });
   }
 
   async get<T>(

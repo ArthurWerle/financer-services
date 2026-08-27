@@ -119,6 +119,53 @@ export function mountAiRoutes(router: Router) {
     }
   });
 
+  // Streaming Q&A. Same ownership rules as /ask, but ai-internal answers over
+  // Server-Sent Events so the frontend can render the reply as it is produced
+  // (tokens + tool activity). We pipe the upstream stream straight through: the
+  // content-type is forwarded (text/event-stream on success, application/json
+  // on a pre-stream error such as a 404), so the client can tell them apart.
+  aiRouter.post('/ask/stream', async (req, res) => {
+    try {
+      const service = new AiService();
+      const userId = String(req.user!.id);
+
+      if (req.body?.chatId) {
+        const owned = await getOwnedChat(
+          service,
+          String(req.body.chatId),
+          userId
+        );
+        if (!owned) {
+          notFound(res);
+          return;
+        }
+      }
+
+      const upstream = await service.postStream('/ask/stream', {
+        ...req.body,
+        userId,
+      });
+
+      res.status(upstream.status);
+      const contentType = upstream.headers['content-type'];
+      if (contentType) res.setHeader('Content-Type', contentType);
+      // Keep the SSE stream unbuffered end to end.
+      res.setHeader('Cache-Control', 'no-cache, no-transform');
+      res.setHeader('X-Accel-Buffering', 'no');
+      if (typeof (res as any).flushHeaders === 'function') {
+        (res as any).flushHeaders();
+      }
+
+      // If the client goes away, stop pulling from ai-internal so its agent run
+      // can be aborted instead of finishing into a dead socket.
+      res.on('close', () => upstream.data.destroy());
+      upstream.data.on('error', () => res.end());
+      upstream.data.pipe(res);
+    } catch (error: any) {
+      forwardError(res, error, 'POST /ai/ask/stream');
+    }
+  });
+
   // Lists the session user's chats, newest activity first.
   aiRouter.get('/chats', async (req, res) => {
     try {
